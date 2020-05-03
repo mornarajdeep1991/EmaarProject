@@ -8,6 +8,7 @@
 * VERSION   Developer   Date        Description     Ticket/Reference                                                                    
 ************************************************************************************************/
 //test version
+//test version 1.5
 @isTest
 public with sharing class AbsenceTriggerHandler_Test {
     public static testmethod void TestInsert(){
