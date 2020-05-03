@@ -1,0 +1,586 @@
+<apex:page id="thePage" controller="Cm_PaymentGateway" sidebar="False" tabStyle="opportunity"  action="{!checkAgent}"><html>
+
+<style> 
+    //#F7EDC9
+    //#E5C130
+    .track-progress {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        font-size: 0;
+    }
+
+    .track-progress li {
+        list-style-type: none;
+        display: inline-block;
+        margin: -2px;
+        position: relative;s
+        padding: 0;
+        font-size:14px;
+        text-align: center;
+        line-height: 30px;
+        height: 30px;
+        
+        background-color:#F7EDC9;
+    }
+    .track-progress[data-steps="3"] li { width: 33.3%; }
+    .track-progress[data-steps="4"] li { width: 25%; }
+    .track-progress[data-steps="5"] li { width: 20%; }
+
+    .track-progress li > span {
+        display: block;     
+        color: white;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+
+    .track-progress li.done > span {
+        color: white;
+        background-color: #E5C130;
+        font-weight: bold;
+        border-left-color:#F7EDC9;
+    }
+    .track-progress li > span:after,
+    .track-progress li > span:before {
+        content: "";
+        display: block;
+        width: 0px;
+        height: 0px;
+        
+        position: absolute;
+        top: 0;
+        left: 0;
+        
+        border: solid transparent;
+        border-left-color:#F7EDC9;
+        border-width: 15px;
+    }
+
+    .track-progress li > span:after {
+        top: -5px;
+        z-index: 1;
+        border-left-color: white;
+        border-width: 20px;
+    }
+
+    .track-progress li > span:before {
+        z-index: 2;
+    }
+
+    .track-progress li.done + li > span:before {
+        border-left-color: #E5C130;
+    }
+
+    .track-progress li:first-child > span:after,
+    .track-progress li:first-child > span:before {
+        display: none;
+    }
+    .track-progress li:first-child i,
+    .track-progress li:last-child i {
+        display: block;
+        height: 0;
+        width: 0;
+        
+        position: absolute;
+        top: 0;
+        left: 0;
+        
+        border: solid transparent;
+        border-left-color: white;
+        border-width: 15px;
+    }
+
+    .track-progress li:last-child i {
+        left: auto;
+        right: -15px;
+        
+        border-left-color: transparent;
+        border-top-color: white;
+        border-bottom-color: white;
+    }
+    
+.myClass {
+    /*color: white !important;
+    background: #E5C130  !important;*/
+}
+.bPageBlock .requiredInput .requiredBlock{
+    height:19px !important;
+} 
+.popupBackground {
+             /* Background color */
+             background-color:black;
+             opacity: 0.20;
+             filter: alpha(opacity = 20);
+          
+             /* Dimensions */
+             width: 100%;
+             height: 100%;
+             top: 0;
+             left: 0;
+             z-index: 998;
+             position: absolute;
+         }
+         .PopupPanel {
+             left: 50%;
+             width: 100px;
+             //margin-left: -100px;
+             border-radius: 15px
+             top: 50%;
+             height: 100px;
+             margin-top: 200px;
+             z-index: 999;
+             position: fixed;
+         }
+          .AccCleanTbl td{
+            border:1px solid #d7dcde;
+       }
+      .AccCleanTbl{
+           border-collapse:collapse;
+       }
+       .AccCleanTbl th {
+             /* Safari 4-5, Chrome 1-9 */
+             background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#f0fafd), to(#d3f0f8));
+           
+             /* Safari 5.1, Chrome 10+ */
+             background: -webkit-linear-gradient(top, #f0fafd, #d3f0f8);
+           
+             /* Firefox 3.6+ */
+             background: -moz-linear-gradient(top, #f0fafd, #d3f0f8);
+           
+             /* IE 10 */
+             background: -ms-linear-gradient(top, #f0fafd, #d3f0f8);
+           
+             /* Opera 11.10+ */
+             background: -o-linear-gradient(top, #f0fafd, #d3f0f8);
+           
+             border:1px solid #d7dcde;text-align:center;padding:3px 0px;
+       }
+        .AccCleanTbl tr:nth-child(odd){
+            background:#f0f0f0;
+        }
+        .AccCleanTbl tr:nth-child(even){
+            background:#fff;
+        }
+ </style>
+ <script>
+     window.onload = function(){}
+ </script>
+ <!-- <c:EmmarHeaderVC Title="EMAAR" subtitle="Submit for Approval - {!OppName}" /> -->
+ <apex:outputPanel id="processOp">
+    <ol class="track-progress" data-steps="3">
+        <li id="step1" class="{!IF(firststep==true,'done','')}">
+            <span>Account Information</span>
+            <i></i>
+        </li>
+        <li id="step2" class="{!IF(secondstep==true,'done','')}">
+            <span>Order Information</span>
+            <i></i>
+        </li>
+        <li id="step3" class="{!IF(thirdstep==true,'done','')}">
+            <span >Payment Information</span>
+            <i></i>
+        </li>
+         
+    </ol>
+</apex:outputPanel>
+
+<apex:form id="theform">
+   <apex:pageMessages id="pgmsg"/>
+   <apex:actionStatus id="pleasewait" stopText="">
+    <apex:facet name="start">
+        <div>
+            <div class="popupBackground"></div>
+            <div class="PopupPanel">
+                <img src="{!$Resource.Loading}"/>
+            </div>
+        </div>
+    </apex:facet>
+    </apex:actionStatus>
+<apex:actionfunction name="ValidatePaymentOptionsafn"  action="{!submit}" rerender="hdnmessage,pgmsg" status="pleasewait" />
+<apex:actionFunction name="ValidateData"  action="{!ValidateData}" status="pleasewait" rerender="theform,pgmsg,pb1pnl,pb2pnl,pb3pnl, processOp"/>
+<apex:actionFunction name="CreateOrderfn" action="{!createSalesOrder}" status="pleasewait" rerender="SalesOrderstatus,counterId,theform,pgmsg,pb1pnl,pb2pnl,pb3pnl,processOp" oncomplete="startTimer();return false;"/>
+<apex:inputHidden value="{!strMessage}" id="hdnmessage"/>
+<apex:inputhidden value="{!iCount}" id="counterId" />
+<apex:inputHidden value="{!salesOrderstatus}" id="SalesOrderstatus" />
+
+
+        
+<apex:outputpanel id="pb1pnl" rendered="{!firstStep}">
+<!--
+<div class="mosterhdr" style="height:25px;padding-top:5px;background-color: #E5C130  !important;padding-left: 5px;padding-right: 9px;margin-bottom:2px;border-radius:5px 5px 0px 0px;"><div style="float:left;color:#fff"><b>Step 1: Please provide all the information before you proceed to make payment.</b></div><div style="float:Right;color:#fff"><b>Step 1 of 3</b></div></div>
+-->
+
+<apex:pageBlock mode="edit">
+    <apex:pageBlockButtons >
+        <apex:commandButton value="Back to Opportunity"  styleclass="myClass" onClick="window.top.location.href='/{!$CurrentPage.parameters.id}';return false;"/>
+        <apex:commandButton value="Next"  styleclass="myClass" onClick="NextAction('{!lstexistingPropertyWrap.size}');return false;" rendered="{!BlnApproval}" />
+    </apex:pageBlockButtons>
+    <apex:outPutpanel rendered="{!BlnApproval}" >
+    <apex:pageBlockSection title="Account Information" rendered="{!blnPersonAccount}"  >
+         <apex:inputField value="{!objpersonAccount.cm_Birthdate__pc}" required="true"  onkeydown="return noenter();"/>
+         <apex:inputField value="{!objpersonAccount.cm_Passport_Number__pc}" required="true"/>
+         <apex:inputField value="{!objpersonAccount.cm_Resident_Of_UAE__pc}"/>
+         <apex:inputField value="{!objpersonAccount.cm_National_ID_No__pc}" />
+         <apex:inputField value="{!objpersonAccount.cm_National_ID_Expiry_Date__pc}" />
+         <apex:inputField value="{!objpersonAccount.BillingStreet}" required="true"/>
+         <apex:inputField value="{!objpersonAccount.BillingCity}" required="true"/>
+         <apex:inputField value="{!objpersonAccount.BillingStateCode}" required="true"/>
+        <apex:inputField value="{!objpersonAccount.BillingCountrycode}" required="true"/>
+        <apex:inputField value="{!objpersonAccount.BillingPostalCode}" required="true"/>
+    </apex:pageBlockSection>
+     <apex:pageBlockSection rendered="{!!blnPersonAccount}">
+         <apex:inputField value="{!objbusinessAccount.cm_Date_of_Incorporation__c}" required="true" />
+         <apex:inputField value="{!objbusinessAccount.cm_Country_Of_Incorporation__c}"  required="true"/>
+         <apex:inputField value="{!objbusinessAccount.cm_Trade_License_Expiry_Date__c}" required="true" />
+         <apex:inputField value="{!objbusinessAccount.cm_Trade_License_Number__c}" required="true" />
+         <apex:inputField value="{!objbusinessAccount.BillingStreet}" required="true" />
+         <apex:inputField value="{!objbusinessAccount.BillingCity}" required="true" />
+         <apex:inputField value="{!objbusinessAccount.BillingStateCode}" required="true" />
+        <apex:inputField value="{!objbusinessAccount.BillingCountrycode}" required="true" />
+        <apex:inputField value="{!objbusinessAccount.BillingPostalCode}" required="true" />
+    </apex:pageBlockSection>
+    <apex:pageBlockSection title="Contact Information" rendered="{!!blnPersonAccount}">
+        <apex:inputField value="{!objContact.cm_Birthdate__c}" required="true" />
+        <apex:inputField value="{!objContact.cm_Passport_Number__c}" required="true" />
+        <apex:inputField value="{!objContact.cm_Resident_Of_UAE__c}"  />
+        <apex:inputField value="{!objContact.cm_National_ID_No__c}" />
+        <apex:inputField value="{!objContact.cm_National_ID_Expiry_Date__c}" />
+        <apex:inputField value="{!objContact.MailingStreet}" required="true" />
+        <apex:inputField value="{!objContact.MailingCity}" required="true" />
+        <apex:inputField value="{!objContact.MailingStateCode}" required="true" />
+        <apex:inputField value="{!objContact.MailingCountryCode}" required="true" />
+        <apex:inputField value="{!objContact.MailingPostalCode}" required="true" />
+    </apex:pageBlockSection>
+   </apex:outPutpanel>
+</apex:pageBlock>
+<apex:pageBlock mode="edit" title="Added Properties" rendered="{!BlnApproval}" >
+         <table cellpadding="3" style="width:100%;" class="AccCleanTbl">
+                   <thead>
+                        <tr>
+                            <th width="15%">Property Name</th>
+                            <th width="8%">Unit Type</th>
+                            <th width="8%">Unit Model</th>
+                            <th width="10%">Building</th>
+                            <th width="8%">Bedrooms</th>
+                            <th width="10%">Total Area</th>
+                            <th width="10%">Saleable Area</th>
+                            <th width="10%">Selling Price</th>
+                            <th width="15%">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody  id="resultsbodyID"> 
+                    <apex:repeat var="objpro" value="{!lstexistingPropertyWrap}">
+                        <tr>
+                            <td>
+                                <apex:image value="{!$Resource.Unit_Icon}" style="height:15px;width:20px;" rendered="{!if(objpro.objexistingPro.recordtype.name == 'Package',true,false)}"/>
+                                <apex:image value="{!$Resource.Package_Icon}" style="height:15px;width:15px;" rendered="{!if(objpro.objexistingPro.recordtype.name!=null && objpro.objexistingPro.recordtype.name != 'Package',true,false)}"/>
+                                <apex:outputText value="{!objpro.objexistingPro.Location_Code__c}" />
+                            </td>
+                            <td>
+                                <apex:outputText value="{!objpro.objexistingPro.Type__c}" />
+                            </td>
+                            <td>
+                                <apex:outputText value="{!objpro.objexistingPro.Unit_Model__c}" />
+                            </td>
+                            <td>
+                                 <apex:outputtext value="{!objpro.objexistingPro.Building__c}"/>
+                            </td>
+                            <td>
+                                <apex:outputText value="{!objpro.objexistingPro.Sales_Room__c}" />
+                            </td>
+                            <td>
+                                <apex:outputText value="{!objpro.objexistingPro.Total_Area__c}" /> 
+                            </td>
+                             <td>
+                                <apex:outputText value="{!objpro.objexistingPro.Saleable_Leasable_Area__c}" /> 
+                            </td>
+                            <td>
+                                <div style="text-align:right;">
+                                    <apex:outputText value="{!objpro.objexistingPro.Selling_Price__c}" />
+                                </div>
+                            </td>
+                            <td>
+                                <div style="text-align:center;">
+                                 <apex:outputfield value="{!objpro.objexistingPro.Status_Indicator__c}"/>
+                                </div>
+                            </td>
+                        </tr>
+                    </apex:repeat> 
+                   </tbody>
+                </table>
+</apex:pageBlock>
+</apex:outputpanel>
+<apex:outputpanel id="pb2pnl"  rendered="{!secondStep}" >
+<!--    
+
+<div class="mosterhdr" style="height:25px;padding-top:5px;background-color: #E5C130  !important;padding-left: 5px;padding-right: 9px;margin-bottom:2px;border-radius:5px 5px 0px 0px;"><div style="float:left;color:#fff"><b>Step 2: Please provide payment details.</b></div><div style="float:Right;color:#fff"><b>Step 2 of 3</b></div></div>
+-->
+<apex:pageblock mode="edit" id="thepb2">
+    <apex:pageBlockButtons >
+          <apex:commandButton value="Previous"  styleclass="myClass" action="{!gotoStep1}" status="pleasewait" rerender="theform,pgmsg,pb1pnl,pb2pnl,pb3pnl"/>
+          <apex:commandButton value="Create Sales Order & Next"  styleclass="myClass" onclick="CreatesalesOrderJS('{!$Component.OrderEventId}','{!$Component.OrderSource}');return false;"/>
+    </apex:pageBlockButtons>
+     <table style="padding-left:75px">
+            <tr>
+                <td class="labelCol">
+                    <apex:outputlabel >Order Event</apex:outputlabel>
+                </td>
+                <td>
+                    <div style="display:{!if(strOrderEvent==null,'','None')}">
+                      <div class="requiredInput">
+                    <div class="requiredBlock"></div>
+                    <apex:selectList value="{!strOrderEvent}" multiselect="false" size="1" id="OrderEventId" rendered="{!if(strOrderEvent==null,true,false)}">
+                        <apex:selectOptions value="{!OrderEvenetOptions}"/>
+                    </apex:selectList><p/>
+                    </div>
+                    </div>
+                     <apex:outputText value="{!strOrderEvent}" rendered="{!if(strOrderEvent!=null,true,false)}" id="orderEventIDVal"/>
+
+                </td>
+            </tr>
+            <tr>
+                <td class="labelCol">
+                    <apex:outputlabel >Order Source</apex:outputlabel>
+                </td>
+                <td>
+                    <div style="display:{!if(strOrderSource == null,'','None')}">
+                         <div class="requiredInput">
+                        <div class="requiredBlock"></div>
+                        <apex:selectList value="{!strOrderSource}" multiselect="false" size="1" id="OrderSource" >
+                            <apex:selectOptions value="{!OrderSourceOptions}"/>
+                        </apex:selectList><p/></div>
+                    </div>
+                     <apex:outputText value="{!strOrderSource}" rendered="{!if(strOrderEvent!=null,true,false)}" id="orderSourceIDVal"/>
+                    
+                </td>
+            </tr>
+        </table>
+</apex:pageblock>
+</apex:outputpanel>
+<apex:outputpanel id="pb3pnl" rendered="{!thirdStep}"> 
+<!--
+
+<div class="mosterhdr" style="height:25px;padding-top:5px;background-color: #E5C130  !important;padding-left: 5px;padding-right: 9px;margin-bottom:2px;border-radius:5px 5px 0px 0px;"><div style="float:left;color:#fff"><b>Step 3: Your sales order was successfully created. Please provide below payment details to complete your booking.</b></div><div style="float:Right;color:#fff"><b>Step 3 of 3</b></div></div>
+-->
+<apex:pageBlock mode="edit" id="pb">
+<div style="text-align:right;padding-right:100px;" id="MainDIV">
+    Booking closes in <b><span id="time">00:00</span></b> minutes!
+</div>
+<script>
+    
+    var twentyMinutes = '{!minuteCount}',
+    display = document.querySelector('#time');
+    startTimerNew(twentyMinutes, display);
+    function startTimerNew(duration, display) {
+    var timer = duration, minutes, seconds;
+    setInterval(function () {
+        minutes = parseInt(timer / 60, 10)
+        seconds = parseInt(timer % 60, 10);
+    
+        minutes = minutes < 10 ? "0" + minutes : minutes;
+        seconds = seconds < 10 ? "0" + seconds : seconds;
+    
+        display.textContent = minutes + ":" + seconds;
+        if(display.textContent == '00:00'){
+            //Adeel - method to comment.. in order to not to redirect
+            //document.getElementById('thePage:theform:pb:pgbtns:cancelID').click();
+        }   
+        if (--timer < 0) {
+            timer = duration;
+        }
+    }, 1000);
+    }
+</script>
+<apex:pageBlockButtons id="pgbtns">
+    <apex:actionFunction name="submitform" action="{!submit}" rerender="hdnmessage,pgmsg" status="pleasewait"/>
+    <input type="button" id="submitbtnId" class="btn myClass" onClick="return ValidatePaymentOptions();" value="Submit"/>
+    <apex:commandButton value="Cancel Booking" id="cancelID" styleclass="myClass" action="{!CancelPayment}" rerender="hdnmessage,pgmsg" status="pleasewait" oncomplete="window.top.location.href='/{!$CurrentPage.parameters.id}';return false;"/>
+    <!-- <apex:commandButton value="Close" id="close"  status="pleasewait" onClick="window.top.location.href='/{!$CurrentPage.parameters.id}';return false;"/>-->
+
+</apex:pageBlockButtons>
+<apex:pageblockSection id="pbs" columns="1">
+    
+    <apex:pageBlockSectionItem >
+        <apex:outputlabel >Mode of Payment</apex:outputlabel> 
+        <apex:selectList value="{!selPaymentMode}" multiselect="false" size="1" style="width:150px" >
+            <apex:actionsupport action="{!fetchDepositdata}" event="onchange" rerender="pbs"/>
+            <apex:selectOptions value="{!PaymentModes}"/>
+        </apex:selectList>
+    </apex:pageBlockSectionItem>
+    
+    <apex:pageBlockSectionItem >
+        <apex:outputlabel >Deposit Methods</apex:outputlabel>
+        <apex:selectList value="{!selDepositOption}" multiselect="false" size="1" style="width:150px" disabled="{!NOT(showdepositOptions)}">
+            <apex:actionsupport action="{!fetchCreditdata}" event="onchange" rerender="pbs"/>
+            <apex:selectOptions value="{!Depositoptions}"/>
+        </apex:selectList>
+    </apex:pageBlockSectionItem>
+    
+    <apex:pageBlockSectionItem rendered="{!ShowCardOptions}">
+        <apex:outputlabel >Credit Card Options</apex:outputlabel> 
+        <apex:selectList value="{!selCreditCardOption}" multiselect="false" size="1" style="width:150px">
+            <apex:selectOptions value="{!CreditCardOptions}"/>
+        </apex:selectList>
+    </apex:pageBlockSectionItem>
+    
+    <apex:pageBlockSectionItem rendered="{!showAmount}" id="AmountContainer">
+         <apex:outputlabel >Amount</apex:outputlabel> 
+         <apex:inputText id="AmountOptionsID" value="{!dCash}"/>    
+    </apex:pageBlockSectionItem>
+    
+    <apex:pageBlockSectionItem >
+        <apex:outputlabel >Exception</apex:outputlabel>
+        <apex:inputCheckbox value="{!WTException}">
+        </apex:inputCheckbox>
+    </apex:pageblockSectionItem>
+    
+    <apex:pageBlockSectionItem >
+        <apex:outputlabel >Exception Comments</apex:outputlabel>
+        <apex:inputTextarea value="{!StrCCExceptionComments}" id="CCExceptionComments" />
+    </apex:pageblockSectionItem>
+    
+    
+</apex:pageblockSection>
+</apex:pageBlock>
+</apex:outputpanel>
+
+</apex:form>
+<script type="text/javascript">
+
+function loadTime(){
+ var d=new Date();
+ var StartTime = d.toLocaleTimeString();
+ document.getElementById("StartTime").innerHTML = StartTime;
+ }
+ function managewindow(){
+     var status = document.getElementById('thePage:theform:hdnmessage').value;
+     if(status == 'success' || status == ' ' ){
+         document.getElementById('thePage:theform:pb:pgbtns:cancelbtnId').click();
+     }
+ }
+ function manageDisplayOPtions(val){
+     if(val == 'Cheque'){
+         document.getElementById('CCExceptionTR').style.display='';
+         document.getElementById('CCExceptionCommentsTR').style.display='';
+         document.getElementById('chequeOptionsId').style.display='none';
+         document.getElementById('Amounttr').style.display='none';
+         document.getElementById('CreditCardTr').style.display='none';
+         document.getElementById('chequeTypeOptionsId').style.display='none';
+         document.getElementById('DepositTR').style.display = 'none';
+         document.getElementById('ChequeDepositTR').style.display = '';
+         document.getElementById('WTExceptionTR').style.display='none';
+         document.getElementById('WTExceptionCommentsTR').style.display='none';
+       
+     }
+     if(val == 'Wire Transfer'){
+         document.getElementById('Amounttr').style.display='none';
+         document.getElementById('chequeOptionsId').style.display='NONE';
+         document.getElementById('DepositTR').style.display = '';
+         document.getElementById('ChequeDepositTR').style.display = 'none';
+         document.getElementById('CCExceptionTR').style.display='NONE';
+         document.getElementById('CCExceptionCommentsTR').style.display='NONE';
+         document.getElementById('WTExceptionTR').style.display='';
+         document.getElementById('WTExceptionCommentsTR').style.display='';
+     }
+    
+     if(val ==''){
+         document.getElementById('Amounttr').style.display='none';
+         document.getElementById('chequeOptionsId').style.display='none';
+         document.getElementById('CreditCardTr').style.display='none';
+         document.getElementById('chequeTypeOptionsId').style.display='none';
+     }
+ }
+ function manageChequeOPtions(val){
+     if(val == 'Holding / Post Dated Cheque'){
+         document.getElementById('chequeTypeOptionsId').style.display='';
+         document.getElementById('Amounttr').style.display='';
+         document.getElementById('CreditCardTr').style.display='';
+     }else{
+         document.getElementById('Amounttr').style.display='none';
+         document.getElementById('chequeOptionsId').style.display='';
+         document.getElementById('CreditCardTr').style.display='none';
+         document.getElementById('chequeTypeOptionsId').style.display='none';
+
+     }
+ }
+function manageDepositoptions(val){
+     if(val =='Cash'){
+         document.getElementById('Amounttr').style.display='';
+         document.getElementById('CreditCardTr').style.display = 'none';
+     }else if(val == 'Credit card'){
+         document.getElementById('CreditCardTr').style.display = '';
+         document.getElementById('Amounttr').style.display='';
+     }else{
+         
+         document.getElementById('CreditCardTr').style.display = 'none';
+         document.getElementById('Amounttr').style.display='none';
+         document.getElementById('thePage:theform:pb:SelCreditCardOptionID').value= '';
+     }
+     
+ }
+ function CreatesalesOrderJS(EventId,SourceID){
+   var EventVal = '';
+   var Sourceval = '';
+   if(document.getElementById(EventId)!=null)
+        EventVal = document.getElementById(EventId).value;
+   if(document.getElementById(SourceID)!=null)
+        Sourceval = document.getElementById(SourceID).value;
+   if(EventVal == ''){
+       if(document.getElementById('thePage:theform:thepb2:orderEventIDVal')!=null)
+        EventVal = document.getElementById('thePage:theform:thepb2:orderEventIDVal').innerHTML;
+   }
+   if(Sourceval == ''){
+       if(document.getElementById('thePage:theform:thepb2:orderSourceIDVal')!=null)
+        Sourceval = document.getElementById('thePage:theform:thepb2:orderSourceIDVal').innerHTML;
+   }
+   if(EventVal == '' || EventVal == null || EventVal== 'null'){
+       alert('Please enter Order Event.');
+       return;
+   }
+   if(Sourceval == '' || Sourceval == null || Sourceval== 'null'){
+       alert('Please enter Order Source.');
+       return;
+   }
+   CreateOrderfn();    
+ }
+   function noenter() 
+   {
+      if (window.event && window.event.keyCode == 13)
+      {
+         var ele=document.getElementById('{!$Component.form.crit_block.searchbtn}');
+         ele.click();
+         return false;
+      }
+      else
+      {
+         return true;
+      }
+   }
+    function NextAction(size){
+        if(size==0){
+           alert('Please add properties to opportunity to proceed.');
+        }
+        else if(size > '{!iPropMaxCount}'){
+                alert('You cannot add more than '+'{!iPropMaxCount}'+' properties to submit this Opportunity for approval.');
+        }
+        else if(size <= '{!iPropMaxCount}'){
+           ValidateData();
+        }
+       
+    }
+   function ValidatePaymentOptions(){
+       
+       var Amountfield = document.getElementById('thePage:theform:pb:pbs:AmountContainer:AmountOptionsID');       
+       if(Amountfield){
+		 var AmountVal = Amountfield.value;
+           if(AmountVal >37000 || AmountVal < 10000){
+               alert('Amount cannot be less than 10000 and greater than 37000 AED');
+               return 0;
+           }
+       }
+       submitform();
+   }
+
+</script>
+
+</html></apex:page>

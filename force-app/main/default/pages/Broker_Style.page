@@ -1,0 +1,409 @@
+<!-- 
+*********************************************************************************
+Author      : Sri vijitha (sri.mutyala@weare4c.com)
+Created Date: 06/03/2019
+Function    : Visualforce page for custom stylesheet, custom styles applied on broker registration portal.
+Version     : 1.0 
+*********************************************************************************
+--> 
+<apex:page showHeader="false" sidebar="false" contentType="text/css">
+    *{
+    margin: 0;
+    }
+    html, body {
+    height: 100%;
+    }
+    .header{
+    padding-left:0px;
+    padding-right:0px;
+    background:#f7f7f7;
+    padding-top:10px;
+    padding-bottom:10px;
+    }
+    .header h1{
+    color: #ffffff;
+    text-transform: uppercase;
+    padding-top: 0px;
+    margin-top: 5px;
+    }
+    .body{
+    margin-top:10px;
+    margin-bottom:10px;
+    }
+    .container.body{
+    min-height:600px;
+    }
+    h2.pageTitle{
+    text-transform:uppercase;
+    margin-bottom:30px;
+    display:block;
+    color:#6d6d6d;
+    }
+    .broker-registration-content label{
+    font-weight:normal;
+    }
+    .broker-registration-content .form-horizontal .form-group{
+    margin-left:0px;
+    margin-right:0px;
+    min-height:48px;
+    }
+    .broker-registration-content .dateOnlyInput .dateFormat{
+    display:none;
+    }
+    .form-section h3{
+    width: 100%;
+    font-size: 14px;
+    border-bottom: 2px solid #cccccc;
+    padding-bottom: 5px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    padding-left: 0px;
+    display:block;
+    }
+    .footer{
+    padding-left:0px;
+    padding-right:0px;	
+    background:#f7f7f7;
+    padding-top:10px;
+    padding-bottom:10px;	
+    }
+    .footer h1{
+    color: #ffffff;
+    text-transform: uppercase;
+    padding-top: 0px;
+    margin-top: 5px;
+    display: inline-block;
+    border-right: 1px solid #ccc;
+    padding-right: 10px;
+    margin-right: 10px;	
+    }
+    .footer span{
+    color:#555555;
+    }
+    .footer img{
+    border-right: 1px solid #ccc;
+    margin-right: 15px;
+    }
+    .datePicker {
+    z-index: 9999;
+    position: absolute;
+    display: none;
+    top: 0;
+    left: 0;
+    background: #cccccc;
+    background-image: url(/img/alohaSkin/cal_sprite.png);
+    background-position: left -109px;
+    background-repeat: repeat-x;
+    background-color: #ededed;
+    border: 1px solid #d6d6d6;
+    border-radius: 5px;
+    }
+    .calDays tr th, .calDays tr td{
+    padding:5px;
+    cursor:pointer;
+    }
+    .datePicker .dateBar{
+    text-align: center;
+    margin-top: 5px;	
+    }   
+    .datePicker .dateBar select{
+    margin-right:3px;
+    }
+    .loader_wrapper{
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    right: 0; 
+    bottom: 0; 
+    opacity: 0.50; 
+    z-index: 1000; 
+    background-color: #ffffff;
+    }
+    .loader_image{
+    position: fixed; 
+    left: 0; 
+    top: 0; 
+    bottom: 0; 
+    right: 0; 
+    z-index: 1001; 
+    margin: 20% 46%;
+    }
+    label.required:after {
+    content: '*';
+    color: red;
+    padding-left: 3px;
+    font-size: 14px;
+    }
+    .broker-registration-content{
+    margin-top:20px;   
+    }
+    .action-btns .btn{
+    margin-right:5px;
+    }
+    input[type="checkbox"].form-control{
+    border:none;
+    box-shadow:none;
+    }
+    .no-padding{
+    padding:0px !important;
+    }
+    .upload-btn{
+    margin-top:5px;
+    }
+    .pageMsgs .alert{
+    margin-top:20px;
+    margin-bottom:0px;
+    }
+    .output-label{
+    text-align:right;
+    }
+    .action-btns-row{
+    margin-top:10px;
+    margin-bottom:10px;
+    }
+    .action-btns-row input{
+    margin-right:10px;
+    }
+    #documentationAccordian .form-section h3{
+    margin-bottom:10px !important;
+    }
+    .dateOnlyInput input{
+    width:100% !important; 
+    }
+    p.error{
+    color:red;
+    margin-bottom:0px !important; 
+    }
+    a.delete-agent{
+    float: right;
+    color: red;
+    border: 1px solid;
+    border-radius: 5px;
+    font-size: 12px;
+    padding: 3px;
+    }
+    ul.nav-wizard {
+    background-color: #f1f1f1;
+    border: 1px solid #d4d4d4;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 3px;
+    position: relative;
+    overflow: hidden;
+    }
+    ul.nav-wizard:before {
+    position: absolute;
+    }
+    ul.nav-wizard:after {
+    display: block;
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    top: 138px;
+    height: 47px;
+    border-top: 1px solid #d4d4d4;
+    border-bottom: 1px solid #d4d4d4;
+    z-index: 11;
+    content: " ";
+    }
+    ul.nav-wizard li {
+    position: relative;
+    float: left;
+    height: 46px;
+    display: inline-block;
+    text-align: center;
+    padding: 0 20px 0 30px;
+    margin: 0;
+    font-size: 16px;
+    line-height: 46px;
+    width:33%;
+    }
+    ul.nav-wizard li a {
+    color: #428bca;
+    padding: 0;
+    }
+    ul.nav-wizard li a:hover {
+    background-color: transparent;
+    }    
+    ul.nav-wizard li:last-child{
+    width:34%;    
+    }    
+    ul.nav-wizard li:last-child:after,ul.nav-wizard li:last-child:before{
+    display:none;
+    }
+    ul.nav-wizard li:before {
+    position: absolute;
+    display: block;
+    border: 24px solid transparent;
+    border-left: 16px solid #d4d4d4;
+    border-right: 0;
+    top: -1px;
+    z-index: 10;
+    content: '';
+    right: -16px;
+    }
+    ul.nav-wizard li:after {
+    position: absolute;
+    display: block;
+    border: 24px solid transparent;
+    border-left: 16px solid #f1f1f1;
+    border-right: 0;
+    top: -1px;
+    z-index: 10;
+    content: '';
+    right: -15px;
+    }
+    ul.nav-wizard li.active {
+    color: #3a87ad;
+    background: #dedede;
+    }
+    ul.nav-wizard li.active:after {
+    border-left: 16px solid #dedede;
+    }
+    ul.nav-wizard li.active a,
+    ul.nav-wizard li.active a:active,
+    ul.nav-wizard li.active a:visited,
+    ul.nav-wizard li.active a:focus {
+    color: #989898;
+    background: #dedede;
+    }
+    ul.nav-wizard .active ~ li {
+    color: #999999;
+    background: #f9f9f9;
+    }
+    ul.nav-wizard .active ~ li:after {
+    border-left: 16px solid #f9f9f9;
+    }
+    ul.nav-wizard .active ~ li a,
+    ul.nav-wizard .active ~ li a:active,
+    ul.nav-wizard .active ~ li a:visited,
+    ul.nav-wizard .active ~ li a:focus {
+    color: #999999;
+    background: #f9f9f9;
+    }
+    ul.nav-wizard.nav-wizard-backnav li:hover {
+    color: #468847;
+    background: #f6fbfd;
+    }
+    ul.nav-wizard.nav-wizard-backnav li:hover:after {
+    border-left: 16px solid #f6fbfd;
+    }
+    ul.nav-wizard.nav-wizard-backnav li:hover a,
+    ul.nav-wizard.nav-wizard-backnav li:hover a:active,
+    ul.nav-wizard.nav-wizard-backnav li:hover a:visited,
+    ul.nav-wizard.nav-wizard-backnav li:hover a:focus {
+    color: #468847;
+    background: #f6fbfd;
+    }
+    ul.nav-wizard.nav-wizard-backnav .active ~ li {
+    color: #999999;
+    background: #ededed;
+    }
+    ul.nav-wizard.nav-wizard-backnav .active ~ li:after {
+    border-left: 16px solid #ededed;
+    }
+    ul.nav-wizard.nav-wizard-backnav .active ~ li a,
+    ul.nav-wizard.nav-wizard-backnav .active ~ li a:active,
+    ul.nav-wizard.nav-wizard-backnav .active ~ li a:visited,
+    ul.nav-wizard.nav-wizard-backnav .active ~ li a:focus {
+    color: #999999;
+    background: #ededed;
+    }
+    .header-right, .header-right a{
+    color: #555555;
+    font-weight: normal;
+    font-size: 12px;
+    text-decoration:none;
+    padding:6px 0px;
+    }
+    .header-right label{
+    <!-- display:block; -->
+    margin-right: 20px;
+    float: right;
+    margin-bottom:0px;   
+    }
+    .header-right span{
+    margin-right:5px;
+    }   
+    select[multiple], select[size] {
+    height:34px !important;
+    }
+    .pageMsgs .message.errorM3{
+    background-color: #f2dede;
+    border-color: #ebccd1;
+    color: #a94442;
+    margin: 0px;
+    margin-top: 20px;
+    padding: 15px;
+    }
+    .pageMsgs table.messageTable tr td:first-child{
+    display:none;
+    }
+    .pageMsgs table.messageTable tr td div.messageText, .pageMsgs table.messageTable li{
+    color: #a94442;
+    list-style:none;
+    margin-left:0px;
+    }
+    .pageMsgs table.messageTable ul{
+    margin-top:-20px !important;
+    }
+    .pageMsgs table.messageTable tr td div.messageText h4{
+    display:none;
+    }
+    .action-btns .btn{
+    display: inline-block;
+    margin-bottom: 0;
+    font-weight: normal;
+    text-align: center;
+    vertical-align: middle;
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+    cursor: pointer;
+    background-image: none;
+    border: 1px solid transparent;
+    white-space: nowrap;
+    font-size: 13px;
+    line-height: 1.42857143;    
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    border-radius: 0;
+    min-width: 222px;
+    padding: 14px 0;
+    letter-spacing: 2px;
+    }
+    .action-btns .btn-default {
+    color: #333;
+    background-color: #fff;
+    border-color: #ccc;
+    }
+    .action-btns .btn-primary {
+    color: #fff;
+    background-color: #464645;
+    border-color: #464645;
+    }
+    .action-btns .btn-primary:hover {
+    color: #464645;
+    border: 1px solid #464645;
+    background-color: #fff;
+    }
+    .form-control[readonly]{
+    background:#ffffff !important;
+    }
+    .form-group .errorMsg{
+    position:absolute;
+    }
+    h3 label{
+    font-weight:bold !important;
+    }    
+    .footer-text{
+    font-size:12px;
+    }
+    .Help-Text-Style{
+    color: #454a50;
+    }
+    .header-logo{
+    padding: 3px 0px;
+    }
+</apex:page>

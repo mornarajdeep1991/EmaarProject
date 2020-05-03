@@ -1,0 +1,26 @@
+<!-- Visualforce page that will gets called from custom button 'Generate Floor Plans' from lightning -->
+<apex:page standardController="Opportunity" extensions="GenerateFloorPlans" showHeader="true" sidebar="true">
+	<apex:pageMessages />
+	<apex:includeScript value="/soap/ajax/32.0/apex.js"/>
+	<script>
+		window.onload=GenerateFloorPlan();
+        function GenerateFloorPlan(){
+           var oppId = '{!Opportunity.Id}';
+           GenerateFloorPlans.CreateDOC(oppId,function(result, event){
+                if(event.status) {
+                    if(result.indexOf('success') >-1){
+                        window.open('/apex/cm_FloorPlans?id='+invID+'&Type=InventoryfloorPlan','_self');
+                        Idvalues = result;
+                        setTimeout(function(){deleteContenet(Idvalues); }, 10000);
+                    }else{
+                        alert(result); 
+                        parent.window.close();
+                    }
+                }else{
+                    alert(result);
+                    sforce.one.back(true);
+                }
+           });
+        }
+    </script>
+</apex:page>

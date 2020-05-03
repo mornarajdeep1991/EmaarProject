@@ -1,0 +1,64 @@
+<apex:page controller="cm_FloorPlans" action="{!prepareContent}"  renderAs="pdf" showHeader="false" sidebar="false" standardStylesheets="false" applyBodyTag="false" applyHtmlTag="false">
+<head>
+        <style>
+            @page {
+                margin-top: 0cm;
+                //padding-top:10px;
+                @top-center {
+                        content: element(header);
+                    }
+                    @bottom-left {
+                         content: element(footer);
+                    }
+                }
+                 div.footer {
+                     text-align:right;
+                     display: block;
+                     padding: 5px;
+                     position: running(footer);
+                }
+                body {margin: 0;
+                    padding: 0;
+                    background: #fff;
+                    color: #000;
+                    font-family: Tahoma, Verdana, Segoe, sans-serif;
+                    font-size: 10 px !important; }
+        </style>
+    </head>
+    <body>
+    <table width="100%">
+         <tr>
+             <td  width="100%">
+               <div style="text-align:center; margin:0px; padding:0px;"> <h3 style="text-align:center; margin:0px; padding:0px;"> Floor Plan </h3> </div>
+             </td>
+         </tr>
+    </table>
+    <div class="footer">
+    <table width="100%">
+        <tr>
+            <td>
+                
+            </td>
+            <td>
+               
+            </td>
+            <td>
+                <div style="text-align:right">
+                    Signed by the Purchaser: __________________ 
+                </div> 
+            </td>
+        </tr>
+    </table>
+</div> 
+    <table style="width:90%">
+       <apex:variable value="{!1}" var="counter"/>
+        <apex:repeat value="{!lstAttachmentURLwrap}" var="obj">
+            <tr>
+                <td style="text-align: center;">
+                    <img id="theImage" src="{!obj.strURL}" style="width:100%"/>
+                </td>
+            </tr>
+         </apex:repeat>
+    </table>
+</body>
+</apex:page>

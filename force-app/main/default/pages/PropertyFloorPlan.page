@@ -1,0 +1,36 @@
+<apex:page extensions="PropertyFloorPlan" standardController="Property_Inventory__c" showHeader="false" >
+    <apex:form >
+        
+    </apex:form>
+    <script>
+        window.onload=ShowFloorPan();
+        function ShowFloorPan(){
+           var Idvalues = '';
+           var invID = '{!$CurrentPage.parameters.pid}';
+           PropertyFloorPlan.CreateContentAttachment(invID,function(result, event){
+                if(event.status) {
+                    if(result.indexOf('success') >-1){
+                        window.open('/apex/cm_FloorPlans?id='+invID+'&Type=InventoryfloorPlan','_self');
+                        Idvalues = result;
+                        setTimeout(function(){deleteContenet(Idvalues); }, 10000);
+                    }else{
+                        alert(result); 
+                        parent.window.close();
+                    }
+                }else{
+                    alert(result);
+                    parent.window.close();
+                }
+           });
+        }
+        function deleteContenet(Idvalues){
+             if(Idvalues.indexOf('success') >-1){
+                   PropertyFloorPlan.deleteContentAttachment(Idvalues,function(result, event){
+                       if(event.status) { 
+                            
+                        }
+                   });
+             }
+        }
+    </script>
+</apex:page>

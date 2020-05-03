@@ -1,0 +1,60 @@
+<apex:page controller="EGY_UnitApprovalReport">
+    <apex:slds />
+    <div class="slds-theme slds-theme_default">
+        <h2 class="slds-text-heading_large slds-m-around_medium">
+            Unit Approval History Report
+        </h2>
+        <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered">
+            <thead>
+                <tr>
+                    <th scope="col">Unit</th>
+                    <th scope="col">Customer Name</th>
+                    <th scope="col">Schedule Type</th>
+                    <th scope="col">Discount Type</th>
+                    <th scope="col">Submitted</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Approving Authorty 1</th>
+                    <th scope="col">Approving Authorty 2</th>
+                    <th scope="col">Approving Authorty 3</th>
+                </tr>
+            </thead>
+            <tbody>
+                <apex:repeat value="{!specialApprovalsMap}" var="spId">
+                    <tr>
+                        <td class="slds-col">{!specialApprovalsMap[spId].Name} - {!specialApprovalsMap[spId].Offer__r.cm_Property_Inventory__r.Location_Code__c}</td>
+                        <td class="slds-col">{!specialApprovalsMap[spId].Offer__r.cm_Opportunity__r.Account.Name}</td>
+                        <td class="slds-col">{!specialApprovalsMap[spId].Schedule_Type__c}</td>
+                        <td class="slds-col">{!specialApprovalsMap[spId].Discount_Type__c}</td>
+                        <td class="slds-col"><apex:outputField value="{!approvalsMap[spId].CreatedById}" /></td>
+                        <td class="slds-col">{!approvalsMap[spId].Status}</td>
+                        <apex:repeat value="{!approvalsMap[spId]}" var="approval">
+                            <apex:repeat value="{!approval.Steps}" var="step">
+                                <td class="slds-col">
+                                    Actual Approver:{!step.Actor.FirstName & ' ' & step.Actor.LastName}<br />
+                                    Assigned Approver:{!step.OriginalActor.FirstName & ' ' & step.OriginalActor.LastName}<br />
+                                    Status: {!step.StepStatus}
+                                </td>
+                            </apex:repeat>
+                            <apex:repeat value="{!approval.Workitems}" var="wi">
+                                <td class="slds-col">
+                                    Actual Approver:{!wi.Actor.FirstName & ' ' & wi.Actor.LastName}<br />
+                                    Assigned Approver:{!wi.OriginalActor.FirstName & ' ' & wi.OriginalActor.LastName}<br />
+                                    Status: Pending
+                                </td>
+                            </apex:repeat>
+                            <apex:outputPanel rendered="{!(approval.Workitems.size+approval.Steps.size) = 0}">
+                                <td class="slds-col"></td>
+                            </apex:outputPanel>
+                            <apex:outputPanel rendered="{!(approval.Workitems.size+approval.Steps.size) <= 1}">
+                                <td class="slds-col"></td>
+                            </apex:outputPanel>
+                            <apex:outputPanel rendered="{!(approval.Workitems.size+approval.Steps.size) <= 2}">
+                                <td class="slds-col"></td>
+                            </apex:outputPanel>
+                        </apex:repeat>
+                    </tr>
+                </apex:repeat>
+            </tbody>
+        </table>
+    </div>
+</apex:page>

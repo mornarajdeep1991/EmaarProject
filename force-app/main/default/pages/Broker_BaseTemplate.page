@@ -1,0 +1,60 @@
+<!-- 
+*********************************************************************************
+Author		: Sri vijitha (sri.mutyala@weare4c.com)
+Created Date: 06/03/2019 
+Function    : Base template for broker registration/documents upload
+Version     : 1.0 
+*********************************************************************************
+-->
+<apex:page showHeader="false" sidebar="false" docType="html-5.0" standardStylesheets="false" cache="false">
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title><apex:insert name="PageTitle" /> | EMAAR</title>	
+        <link href="{!URLFOR($Resource.BrokerAssets, 'BrokerAssets/css/bootstrap.min.css')}" rel="stylesheet" />
+        <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" />
+        <link href="{!$Page.Broker_Style}" rel="stylesheet" />
+        <script src="{!URLFOR($Resource.BrokerAssets, 'BrokerAssets/js/jquery.min.js')}"></script>
+		
+	</head>
+
+	<body>
+		<div class="outer-wrapper">
+			<div class="container-fluid header">
+				<div class="container">
+					<div class="row">
+						<div class="col-lg-6 col-md-8 col-sm-12 col-xs-12 header-logo">
+                            <apex:image value="{!URLFOR($Resource.BrokerAssets, 'BrokerAssets/images/EmaarNewLogo.png')}" width="115px"/>
+						</div>
+
+						<div class="col-lg-6 col-md-4 col-sm-12 col-xs-12 header-right">
+							<label><span class="glyphicon glyphicon-earphone" aria-hidden="true"></span> <a href="https://www.emaar.com/">  +971 4 367 3552 </a> </label>
+                            <label><span class="glyphicon glyphicon-envelope" aria-hidden="true"></span><a href="https://www.emaar.com/" target="_blank"> icommunicate@emaar.ae </a></label>
+                            <label><span class="glyphicon glyphicon-globe" aria-hidden="true"></span><a href="https://www.emaar.com/"> www.emaar.com</a></label>
+						</div>
+					</div>
+				</div> <!-- @END:container -->
+			</div> <!-- @END:header -->
+
+			<div class="container body">
+		        <apex:insert name="body" />
+			</div> <!-- @END:body -->
+
+			<div class="container-fluid footer">
+				<div class="container">
+					<div class="row">
+						<div class="col-xs-12 footer-text">
+							<!--img src="{!URLFOR($Resource.BrokerAssets, 'images/meraas-logo.png')}" /-->
+							<span>Copyright &copy; {!year(today())} EMAAR. All Rights Reserved. </span>
+						</div>
+					</div>
+				</div> <!-- @END:container -->
+			</div> <!-- @END:footer -->
+		</div> <!-- @END:outer-wrapper -->
+	</body>
+
+    <script src="{!URLFOR($Resource.BrokerAssets, 'BrokerAssets/js/bootstrap.min.js')}"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>    
+</html>
+</apex:page>

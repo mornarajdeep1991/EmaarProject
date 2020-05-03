@@ -1,0 +1,39 @@
+<!--
+	Page   : EGY_OpportunitySPAGeneration
+	Author : Adeel (adeel.ahmad@weare4c.com)
+	Date   : 02/08/2018
+	Desc   : Visualforce page to identify the drawloop template from opportunity
+		   : It redirects to the page with template id for drawloop generation.
+-->
+<apex:page showHeader="true" sidebar="true" standardController="Opportunity" extensions="EGY_OpportunitySPAGenerationExt" action="{!navigateToDrawloop}" lightningStylesheets="true">
+	<head>
+		<apex:slds />
+	</head>
+	<body>
+		<div class="slds">
+			<div role="status" class="slds-spinner slds-spinner_medium slds-spinner_brand">
+			    <span class="slds-assistive-text">Loading</span>
+			    <div class="slds-spinner__dot-a"></div>
+			    <div class="slds-spinner__dot-b"></div>
+		  	</div>
+
+		  	<!--
+		  	<div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_error" role="alert">
+				<span class="slds-assistive-text">error</span>
+				<span class="slds-icon_container slds-icon-utility-error slds-m-right_x-small" title="Description of icon when needed">
+				</span>
+				<h2>Your browser is currently not supported. Your Salesforce may be degraded.
+					<a href="javascript:void(0);">More Information</a>
+				</h2>
+			</div>
+			-->
+		</div>
+	</body>
+	<script type="text/javascript">
+		if('{!msg}' != ''){
+			alert('{!msg}');
+		}
+    	sforce.one.navigateToURL('{!redirectURL}');
+    //window.location.href = '{!redirectURL}';
+	</script>
+</apex:page>

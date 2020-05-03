@@ -1,0 +1,891 @@
+<!-- 
+*********************************************************************************
+Author      : Adeel Ahmad
+Email       : adeel.ahmad@weare4c.com
+Created Date: 12/11/2018
+Function    : Visualforce page to register broker from site.com
+Version     : 1.0 
+*********************************************************************************
+--> 
+<apex:page controller="BrokerRegistrationController" showHeader="false" sidebar="false" applyHtmlTag="false" applyBodyTag="false" cache="false" docType="html-5.0">
+<apex:composition template="Broker_BaseTemplate">
+    <apex:define name="PageTitle">Broker Registration</apex:define>
+    <apex:define name="body">
+    <apex:outputPanel layout="block" id="pg">
+        <div class="row">
+            <div class="col-xs-12 text-center">
+                <h2 class="pageTitle"> Broker_Agency_Registration_Form_Title}</h2>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="wizard">
+                  <ul class="nav nav-wizard" role="tablist" id="brokerTabs">
+                    <li role="presentation" class="{!IF(accountRecord.Site_Page_Indicator__c == 1, 'active', '')}"><a href="#agencyDetails" aria-controls="agencyDetails" role="tab" data-toggle="tab" onclick="navigateToTab(1);">Broker_Agency_Details_Tab_Title}</a></li>
+                    <li role="presentation" class="{!IF(accountRecord.Site_Page_Indicator__c == 2, 'active', '')}"><a href="#companyPersonnel" aria-controls="companyPersonnel" role="tab" data-toggle="tab" onclick="navigateToTab(2);">Broker_Company_Personnel_Tab_Title}</a></li>
+                    <li role="presentation" class="{!IF(accountRecord.Site_Page_Indicator__c == 3, 'active', '')}"><a href="#documentation" aria-controls="documentation" role="tab" data-toggle="tab" onclick="navigateToTab(3);">Broker_Documentation_Tab_TItle}</a></li>
+                  </ul>                
+                </div>
+            </div>
+        </div> <!-- @END:tabs -->
+
+        <div class="row">
+            <div class="col-xs-12 pageMsgs">
+                <apex:pageMessages />  
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-12">
+              <div class="tab-content broker-registration-content">
+
+                <apex:outputPanel layout="none" rendered="{!NOT(ISNULL($CurrentPage.parameters.success))}">
+                  <div class="alert alert-success success-registration" role="alert" style="margin-bottom: 0px;"> Broker_Registration_Successful_Message}</div>
+                </apex:outputPanel>
+
+                  <div role="tabpanel" class="tab-pane {!IF(accountRecord.Site_Page_Indicator__c == 1, 'active', '')}" id="agencyDetails">
+                      <apex:form styleClass="form-horizontal">
+                          <div class="row">
+                              <div class="col-sm-12 form-section">
+                                  <h3>Basic Information</h3>
+                              </div>
+                              <div class="form-group col-lg-6">
+                                  <apex:outputLabel styleClass="col-sm-4 required {!IF(canEditBasicInfo,'control-label', 'output-label')}" value="Agency Name " /> 
+                                  <div class="col-sm-8">
+                                      <apex:input type="text" value="{!account.Name}" label="Agency Name" required="true" styleClass="form-control" rendered="{!canEditBasicInfo}"/>
+                                      <apex:inputField value="{!accountRecord.Name}" html-disabled="true" styleClass="form-control" rendered="{!NOT(canEditBasicInfo)}"/>
+                                  </div>
+                              </div>
+                              <div class="form-group col-lg-6">
+                                  <apex:outputLabel styleClass="col-sm-4 required {!IF(canEditBasicInfo,'control-label', 'output-label')}" value="Trade License Number" /> 
+                                  <div class="col-sm-8">
+                                      <apex:input type="text" label="Trade_License_Number" value="{!account.TradeLicenseNo}" required="true" styleClass="form-control" rendered="{!canEditBasicInfo}" onkeyup="validateTradeLicense(this);"/>
+                                      <apex:inputField value="{!accountRecord.cm_Trade_License_Number__c}" html-disabled="true" styleClass="form-control" rendered="{!NOT(canEditBasicInfo)}"/>
+                                  </div>
+                              </div>
+                              <div class="form-group col-lg-6">
+                                  <apex:outputLabel styleClass="col-sm-4  required {!IF(canEditBasicInfo,'control-label', 'output-label')}" value="Date of Incorporation" /> 
+                                  <div class="col-sm-8">
+                                      <apex:input type="date" label="Date_of_Incorporation" value="{!account.DateofIncorporation}" required="true" styleClass="form-control onlyPastInput" rendered="{!canEditBasicInfo}" html-autocomplete="off"/>
+                                      <apex:outputText value="{0, date, dd/MM/yyyy}" rendered="{!NOT(canEditBasicInfo)}" styleClass="form-control disabled">
+                                          <apex:param value="{!accountRecord.cm_Date_of_Incorporation__c}"/> 
+                                      </apex:outputText>
+                                  </div>
+                              </div>
+                              <div class="form-group col-lg-6">
+                                  <apex:outputLabel styleClass="col-sm-4 required license-expiry {!IF(canEditBasicInfo,'control-label', 'output-label')}" value="Trade License Expiry" />
+                                  <div class="col-sm-8">
+                                      <apex:input type="date" label="Trade_License_Expiry" value="{!account.TradeLicenseExpiryDate}" required="true" styleClass="form-control license-expiry onlyFutureInput" rendered="{!canEditBasicInfo}" html-autocomplete="off"/>
+                                      <apex:outputText value="{0, date, dd/MM/yyyy}" rendered="{!NOT(canEditBasicInfo)}" styleClass="form-control disabled">
+                                          <apex:param value="{!accountRecord.cm_Trade_License_Expiry_Date__c}" /> 
+                                      </apex:outputText>
+                                  </div>
+                              </div>
+                              <div class="form-group col-lg-6">
+                                  <apex:outputLabel styleClass="col-sm-4 required {!IF(canEditBasicInfo,'control-label', 'output-label')}" value="Agency Type" /> 
+                                  <div class="col-sm-8 required-select">
+                                      <apex:selectList label="Agency_Type_Fld_Label" required="true" value="{!account.selectedAgency_Type}" styleClass="form-control" multiselect="false" size="1" rendered="{!canEditBasicInfo}">
+                                          <apex:selectOptions value="{!account.Agency_Type}"/>
+                                      </apex:selectList>
+                                      <apex:inputField styleClass="form-control" html-disabled="true" value="{!accountRecord.Sole_Proprietorship_LLC__c }" rendered="{!NOT(canEditBasicInfo)}" />
+                                  </div>
+                              </div>
+                              <div class="form-group col-lg-6 required-select">
+                                  <apex:outputLabel styleClass="col-sm-4 required {!IF(canEditBasicInfo,'control-label', 'output-label')}" value="Country of Incorporation" /> 
+                                  <div class="col-sm-8">
+                                      <apex:selectList required="true" value="{!account.selectedCountryofIncorporation}" label="Country_of_Incorporation" styleClass="form-control country-of-incorporation" multiselect="false" size="1" rendered="{!canEditBasicInfo}" onchange="populateUAEEmiratesInput(this.value);">
+                                          <apex:selectOptions value="{!account.CountryofIncorporation}"/>
+                                      </apex:selectList>
+                                      <apex:inputField styleClass="form-control" html-disabled="true" value="{!accountRecord.cm_Country_Of_Incorporation__c}" rendered="{!NOT(canEditBasicInfo)}" />
+                                  </div>
+                              </div>
+                              <div class="form-group col-lg-6 uae-emirates-wrapper">
+                                  <apex:outputLabel styleClass="col-sm-4 uae-emirate {!IF(canEditBasicInfo,'control-label', 'output-label')}" value="UAE_Emirate" />
+                                  <div class="col-sm-8">
+                                      <apex:selectList label="UAE_Emirate_Fld" value="{!account.selectedUAE_Emirate}" styleClass="form-control uae-emirate" multiselect="false" size="1" rendered="{!canEditBasicInfo}" onChange="populateORNInput(this.value);">
+                                          <apex:selectOptions value="{!account.UAE_Emirate}"/>
+                                      </apex:selectList>
+                                      <apex:inputField styleClass="form-control" html-disabled="true" value="{!accountRecord.Emirate__c}" rendered="{!NOT(canEditBasicInfo)}" />
+                                  </div>
+                              </div>
+                              
+                              <div class="form-group col-lg-6 orn-number {!IF(accountRecord.Emirate__c == 'Dubai', '', 'hide')}">
+                                  <apex:outputLabel styleClass="col-sm-4 {!IF(canEditBasicInfo,'control-label', 'output-label')}" value="Broker_ORN_Number" />
+                                  <div class="col-sm-8">
+                                      <apex:input type="text" label="Broker_ORN_Number_Fld_Label}" value="{!account.ORN_Number}" styleClass="form-control" rendered="{!canEditBasicInfo}"/>
+                                      <apex:inputField styleClass="form-control" html-disabled="true" value="{!accountRecord.ORN_No__c}" rendered="{!NOT(canEditBasicInfo)}" />
+                                  </div>
+                              </div>
+                              <!-- 25/02/2019 - Adeel Ahmad - Removing required on RERA Number -->
+                              <div class="form-group col-lg-6 pera-number {!IF(accountRecord.Emirate__c == 'Dubai', '', 'hide')}">
+                                  <apex:outputLabel styleClass="col-sm-4 RERA-number {!IF(canEditBasicInfo,'control-label', 'output-label')}" value="Broker_RERA_No" />
+                                  <div class="col-sm-8">
+                                      <apex:input type="text" label="RERA_No" value="{!account.RERANo}" styleClass="form-control vat-number" rendered="{!canEditBasicInfo}"/>
+                                      <apex:inputField styleClass="form-control" html-disabled="true" value="{!accountRecord.RERA_No__c}" rendered="{!NOT(canEditBasicInfo)}" />
+                                  </div>
+                              </div>
+                              <div class="form-group col-lg-6 pera-expirydate {!IF(accountRecord.Emirate__c == 'Dubai', '', 'hide')}">
+                                  <apex:outputLabel styleClass="col-sm-4 RERA-expiry {!IF(canEditBasicInfo,'control-label', 'output-label')}" value="Broker_RERA_Expiry_Date" />
+                                  <div class="col-sm-8">
+                                      <apex:input type="date" label="RERA_Expiry_Date" value="{!account.RERA_Expiry_Date}" styleClass="form-control onlyFutureInput" rendered="{!canEditBasicInfo}"/>
+                                      <apex:outputText value="{0, date, dd/MM/yyyy}" rendered="{!NOT(canEditBasicInfo)}" styleClass="form-control disabled">
+                                          <apex:param value="{!accountRecord.RERA_Card_Expiry_Date__c}" /> 
+                                      </apex:outputText>
+                                  </div>
+                              </div>
+                              <!-- @END:basic information -->
+                              
+                              <div class="col-sm-12 form-section">
+                                  <h3>Agency Address Details</h3>
+                              </div>
+                              <div class="form-group col-lg-6">
+                                  <apex:outputLabel styleClass="col-sm-4 required {!IF(canEditBasicInfo,'control-label', 'output-label')}" value="Address" />
+                                  <div class="col-sm-8">
+                                      <apex:input type="text" label="Address1" value="{!account.Address1}" required="true" styleClass="form-control" rendered="{!canEditBasicInfo}"/>
+                                      <apex:inputField style="min-height:100px;" styleClass="form-control" html-disabled="true" value="{!accountRecord.Address_Line_1__c}" rendered="{!NOT(canEditBasicInfo)}" />
+                                  </div>
+                              </div>
+                              
+                              <div class="form-group col-lg-6">
+                                  <apex:outputLabel styleClass="col-sm-4 {!IF(canEditBasicInfo,'control-label', 'output-label')}" value="Address2" />
+                                  <div class="col-sm-8">
+                                      <apex:input type="text" label="Address2" value="{!account.Address2}" styleClass="form-control" rendered="{!canEditBasicInfo}"/>
+                                      <apex:inputField styleClass="form-control" html-disabled="true" value="{!accountRecord.Address_Line_2__c}" rendered="{!NOT(canEditBasicInfo)}" />
+                                  </div>
+                              </div>
+                              
+                              <div class="form-group col-lg-6">
+                                  <apex:outputLabel styleClass="col-sm-4 required {!IF(canEditBasicInfo,'control-label', 'output-label')}" value="City" />
+                                  <div class="col-sm-8 required-select">
+                                      <apex:input type="text" label="Broker_City" value="{!account.Billing_City}" required="true" styleClass="form-control" rendered="{!canEditBasicInfo}"/>
+                                      <apex:inputField styleClass="form-control" html-disabled="true" value="{!accountRecord.BillingCity}" rendered="{!NOT(canEditBasicInfo)}" />
+                                  </div>
+                              </div>
+                              
+                              <div class="form-group col-lg-6">
+                                  <apex:outputLabel styleClass="col-sm-4 required {!IF(canEditBasicInfo,'control-label', 'output-label')}" value="Country" />
+                                  <div class="col-sm-8 required-select">
+                                      <apex:selectList required="true" label="Broker_Country_Fld" value="{!account.selectedShipping_Country}" styleClass="form-control" multiselect="false" size="1" rendered="{!canEditBasicInfo}" onchange="populatePOBox(this.value);">
+                                          <apex:selectOptions value="{!account.Shipping_Country}"/>
+                                      </apex:selectList>
+                                      <apex:inputField styleClass="form-control" html-disabled="true" value="{!accountRecord.Shipping_country__c}" rendered="{!NOT(canEditBasicInfo)}" />
+                                  </div>
+                              </div>
+                              
+                              <div class="form-group col-lg-6"> 
+                                  <apex:outputLabel styleClass="col-sm-4 required {!IF(canEditBasicInfo,'control-label', 'output-label')}" value="Zip Code / P.O. Box No." />
+                                  <div class="col-sm-8 required-select">
+                                      <apex:selectList required="true" label="Zip Code / P.O. Box No." value="{!account.selectedP_O_Box_ZIP}" styleClass="form-control" multiselect="false" size="1" rendered="{!canEditBasicInfo}" onchange="populatePOBox(this.value);">
+                                          <apex:selectOptions value="{!account.P_O_Box_ZIP}"/>
+                                      </apex:selectList>
+                                      <apex:inputField styleClass="form-control" html-disabled="true" value="{!accountRecord.P_O_Box_Zip_Postal_Code__c}" rendered="{!NOT(canEditBasicInfo)}" />
+                                  </div>
+                              </div>
+                              
+                              <div class="form-group col-lg-6">
+                                  <apex:outputLabel styleClass="col-sm-4 required {!IF(canEditBasicInfo,'control-label', 'output-label')}" value="Telephone" />
+                                  <div class="col-sm-8">
+                                      <apex:input type="text" label="Telephone" value="{!account.PhoneNumber}" required="true" styleClass="form-control" rendered="{!canEditBasicInfo}"/>
+                                      <apex:inputField styleClass="form-control" html-disabled="true" value="{!accountRecord.cm_Phone_Number__c}" rendered="{!NOT(canEditBasicInfo)}" />
+                                  </div>
+                              </div> 
+                              
+                              <div class="form-group col-lg-6">
+                                  <apex:outputLabel styleClass="col-sm-4 required {!IF(canEditBasicInfo,'control-label', 'output-label')}" value="Email" />
+                                  <div class="col-sm-8">
+                                      <apex:input type="text" label="Email" value="{!account.Email}" required="true" styleClass="form-control" rendered="{!canEditBasicInfo}"/>
+                                      <apex:inputField styleClass="form-control" html-disabled="true" value="{!accountRecord.Email__c}" rendered="{!NOT(canEditBasicInfo)}" />
+                                  </div>
+                              </div>
+                              <!-- @END:Agency information -->   
+                              <div class="col-sm-12 form-section">
+                                  <h3>Bank Account Details</h3>
+                              </div>
+                              
+                              <div class="bank-details">
+                                  <div class="form-group col-lg-6">
+                                      <apex:outputLabel styleClass="col-sm-4 beneficiary-name {!IF(canEditBasicInfo,'control-label', 'output-label')}" value="Beneficiary_Name" />
+                                      <div class="col-sm-8">
+                                          <apex:input type="text" label="Beneficiary_Name" value="{!account.Beneficiary_Name}" styleClass="form-control beneficiary-name" rendered="{!canEditBasicInfo}"/>
+                                          <apex:inputField styleClass="form-control" html-disabled="true" value="{!accountRecord.Beneficiary_Name__c}" rendered="{!NOT(canEditBasicInfo)}" />
+                                      </div>
+                                  </div>
+                                  
+                                  <div class="form-group col-lg-6">
+                                      <apex:outputLabel styleClass="col-sm-4 account-number {!IF(canEditBasicInfo,'control-label', 'output-label')}" value="Account_Number" />
+                                      <div class="col-sm-8">
+                                          <apex:input type="text" label="Account_Number" value="{!account.Bank_Account_Number}" styleClass="form-control account-number" rendered="{!canEditBasicInfo}"/>
+                                          <apex:inputField styleClass="form-control" html-disabled="true" value="{!accountRecord.Oracle_Account_Number__c}" rendered="{!NOT(canEditBasicInfo)}" />
+                                      </div>
+                                  </div>
+                                  
+                                  <div class="form-group col-lg-6">
+                                      <apex:outputLabel styleClass="col-sm-4 bank-name {!IF(canEditBasicInfo,'control-label', 'output-label')}" value="Bank_Name_Fld" />
+                                      <div class="col-sm-8">
+                                          <apex:input type="text" label="Broker_Bank_Name_Fld_Label" value="{!account.Bank_Name}" styleClass="form-control bank-name" rendered="{!canEditBasicInfo}"/>
+                                          <apex:inputField styleClass="form-control" html-disabled="true" value="{!accountRecord.Bank_Name__c}" rendered="{!NOT(canEditBasicInfo)}" />
+                                      </div>
+                                  </div>
+                                  
+                                  <div class="form-group col-lg-6">
+                                      <apex:outputLabel styleClass="col-sm-4 bank-address {!IF(canEditBasicInfo,'control-label', 'output-label')}" value="Bank_Address" />
+                                      <div class="col-sm-8">
+                                          <apex:input type="text" label="Broker_Bank_Address_Fld_Label" value="{!account.Bank_Address}" styleClass="form-control bank-address" rendered="{!canEditBasicInfo}"/>
+                                          <apex:inputField styleClass="form-control" html-disabled="true" value="{!accountRecord.Bank_Address__c}" rendered="{!NOT(canEditBasicInfo)}" />
+                                      </div>
+                                  </div>
+                                  
+                                  <div class="form-group col-lg-6">
+                                      <apex:outputLabel styleClass="col-sm-4 bank-branch {!IF(canEditBasicInfo,'control-label', 'output-label')}" value="Bank_Branch" />
+                                      <div class="col-sm-8">
+                                          <apex:input type="text" label="Bank_Branch_Fld" value="{!account.Bank_Branch}" styleClass="form-control bank-branch" rendered="{!canEditBasicInfo}"/>
+                                          <apex:inputField styleClass="form-control" html-disabled="true" value="{!accountRecord.Bank_Branch__c}" rendered="{!NOT(canEditBasicInfo)}" />
+                                      </div>
+                                  </div>
+                                  
+                                  <div class="form-group col-lg-6">
+                                      <apex:outputLabel styleClass="col-sm-4 required {!IF(canEditBasicInfo,'control-label', 'output-label')}" value="Country" />
+                                      <div class="col-sm-8 required-select">
+                                          
+                                          <!--apex:input type="text" label="Bank_Country" value="{!account.Bank_Country}" styleClass="form-control bank-address" rendered="{!canEditBasicInfo}"/-->
+                                          <apex:selectList label="Broker_Country" required="true" id="BankCountry" value="{!account.selectedBank_Country}" styleClass="form-control" multiselect="false" size="1" rendered="{!canEditBasicInfo}" onChange="validateBankInfo(this.value);">
+                                              <apex:selectOptions value="{!account.Bank_Country}"/>
+                                          </apex:selectList>
+                                          <apex:inputField styleClass="form-control" html-disabled="true" value="{!accountRecord.Bank_Country__c}" rendered="{!NOT(canEditBasicInfo)}" />
+                                      </div>
+                                  </div>
+                                  
+                                  <div class="form-group col-lg-6">
+                                      <apex:outputLabel styleClass="col-sm-4 swift-code {!IF(canEditBasicInfo,'control-label', 'output-label')}" value="Swift_code" />
+                                      <div class="col-sm-8">
+                                          <apex:input type="text" label="Swift_code" value="{!account.Swift_code}" styleClass="form-control swift-code" rendered="{!canEditBasicInfo}"/>
+                                          <apex:inputField styleClass="form-control" html-disabled="true" value="{!accountRecord.Swift_Code__c}" rendered="{!NOT(canEditBasicInfo)}" />
+                                      </div>
+                                  </div> 
+                                  
+                                  <div class="form-group col-lg-6">
+                                      <apex:outputLabel styleClass="col-sm-4 iban-number {!IF(canEditBasicInfo,'control-label', 'output-label')}" value="IBAN_number" />
+                                      <div class="col-sm-8">
+                                          <apex:input size="23" type="text" label="Broker_IBAN_number_Fld" value="{!account.IBAN_number}" styleClass="form-control iban-number" rendered="{!canEditBasicInfo}"/>
+                                          <apex:inputField styleClass="form-control" html-disabled="true" value="{!accountRecord.IBAN_Number__c}" rendered="{!NOT(canEditBasicInfo)}" />
+                                      </div>
+                                  </div> 
+                                  
+                                  <apex:outputPanel layout="none" rendered="{!canEditBasicInfo}">
+                                      <div class="form-group col-lg-6">&nbsp;</div>
+                                      <div class="form-group col-lg-6">
+                                          <apex:outputLabel styleClass="col-sm-4 control-label" value="Confirm IBAN number" />
+                                          <div class="col-sm-8">
+                                              <input type="text" class="form-control confirm-iban-number" size="23" />
+                                          </div>
+                                      </div> <!-- @END:confirm IBAN Number -->
+                                  </apex:outputPanel>
+                              </div> <!-- @END:bank-account-details -->
+                              
+                              
+                              <div class="col-sm-12 form-section">
+                                  <h3>Name Check Availability</h3>
+                              </div>
+                              <div class="form-group col-lg-6">
+                                  <apex:outputLabel styleClass="col-sm-4 required {!IF(canEditBasicInfo,'control-label', 'output-label')}" value="Agency short Name" />
+                                  <div class="col-sm-8">
+                                      <apex:input type="text" label="Agency Short Name" value="{!account.ShortName}" required="true" styleClass="form-control" rendered="{!canEditBasicInfo}"/>
+                                      <apex:inputField styleClass="form-control" html-disabled="true" value="{!accountRecord.Short_Name__c}" rendered="{!NOT(canEditBasicInfo)}" />
+                                  </div>
+                              </div>
+                              <div class="form-group col-lg-6 Help-Text-Style">
+                                  <small>	This name will be used to create your username for logging into the system if your request is approved.</small>
+                              </div>
+                              
+                          </div>
+                          <div class="form-group col-xs-12 text-center action-btns">
+                                        <apex:outputPanel layout="none" rendered="{!canEditBasicInfo}" id="action-btns">
+                                            <apex:commandButton styleClass="btn btn-primary" value="SAVE & NEXT" onclick="if(validateBasicInfo() == false){return false;}" action="{!saveAndNext}" status="loader" reRender="pg" oncomplete="initPageMessages();initToolTip();initRequiredInputs();initDatesInputs();" />
+                                            <apex:commandButton styleClass="btn btn-default" value="SAVE AS DRAFT" onclick="if(validateBasicInfo() == false){return false;}" action="{!saveAsDraft}" status="loader" reRender="pg,action-btns" oncomplete="initPageMessages();initToolTip();initRequiredInputs();initDatesInputs();"/>
+                                        </apex:outputPanel>
+                                    </div>
+                      </apex:form>
+                      <apex:outputPanel layout="block" styleClass="row" rendered="{!canEditBasicInfo}">
+                          <div class="col-xs-12">
+                              <small>* Save &amp; Next: Once you save and proceed to the next step, you will not be able to update the above information anymore.</small><br />
+                          </div>
+                      </apex:outputPanel>
+                  </div> <!-- @END:agency-details -->
+                <apex:outputPanel layout="none" id="agentDetails">
+                    <div role="tabpanel" class="tab-pane {!IF(accountRecord.Site_Page_Indicator__c == 2, 'active', 'disabled')}" id="companyPersonnel">
+                        <apex:form styleClass="form-horizontal">
+                            <div class="panel-group" id="agentAccordian" role="tablist" aria-multiselectable="true">
+                            <apex:repeat value="{!contactWrapperList}" var="c">
+                              <div class="panel panel-default">
+                                <div class="panel-heading" role="tab">
+                                  <h4 class="panel-title">
+                                    <a role="button" data-toggle="collapse" data-parent="#agent_{!c.index}" href="#agent_{!c.index}" aria-expanded="true" aria-controls="agent_{!c.index}">
+                                        <apex:outputPanel layout="none" rendered="{!c.con.Id != null}">
+                                            <apex:outputText value="{!c.con.Title} " rendered="{!NOT(ISBLANK(c.con.Title))}" />
+                                            <apex:outputText value="{!c.con.FirstName} " rendered="{!NOT(ISBLANK(c.con.FirstName))}" />
+                                            <apex:outputText value="{!c.con.LastName} " rendered="{!NOT(ISBLANK(c.con.LastName))}" />
+                                        </apex:outputPanel>
+                                        <apex:outputText value="Agent Details" rendered="{!c.con.Id == null}" />
+                                    </a>
+                                    <!-- Deleting an agent -->
+                                    <apex:outputPanel layout="none" rendered="{!accountRecord.Site_Page_Indicator__c == 2}">
+                                      <a href="#" class="delete-agent" onclick="deleteAgent('{!c.index}')">Delete</a>
+                                    </apex:outputPanel>
+                                  </h4>
+                                </div>
+                                <div id="agent_{!c.index}" class="panel-collapse collapse in" role="tabpanel">
+                                  <div class="panel-body">
+                                                        <div class="form-group col-lg-6">
+                                                            <apex:outputLabel styleClass="col-sm-4 {!IF(canEditPersonnelInfo,'control-label', 'output-label')}" value="Title" />
+                                                            <div class="col-sm-8">
+                                                                <apex:inputField value="{!c.con.Salutation}" styleClass="form-control" rendered="{!canEditPersonnelInfo}"/>
+                                                                <apex:outputText styleClass="form-control" html-disabled="true" value="{!c.con.Salutation}" rendered="{!NOT(canEditPersonnelInfo)}" />
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <div class="form-group col-lg-6">
+                                                            <apex:outputLabel styleClass="col-sm-4 required {!IF(canEditPersonnelInfo,'control-label', 'output-label')}" value="First Name" />
+                                                            <div class="col-sm-8">
+                                                                <apex:inputField value="{!c.con.firstName}" required="true" styleClass="form-control agent_first_name" rendered="{!canEditPersonnelInfo}"/>
+                                                                <apex:inputField styleClass="form-control" html-disabled="true" value="{!c.con.firstName}" rendered="{!NOT(canEditPersonnelInfo)}" />
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <div class="form-group col-lg-6">
+                                                            <apex:outputLabel styleClass="col-sm-4 required {!IF(canEditPersonnelInfo,'control-label', 'output-label')}" value="Last Name" />
+                                                            <div class="col-sm-8">
+                                                                <apex:inputField value="{!c.con.lastName}" styleClass="form-control agent_last_name" rendered="{!canEditPersonnelInfo}"/>
+                                                                <apex:inputField styleClass="form-control" html-disabled="true" value="{!c.con.lastName}" rendered="{!NOT(canEditPersonnelInfo)}" />
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <div class="form-group col-lg-6">
+                                                            <apex:outputLabel styleClass="col-sm-4 {!IF(canEditPersonnelInfo,'control-label', 'output-label')}" value="Primary Contact" />
+                                                            <div class="col-sm-8">
+                                                                <apex:inputCheckbox value="{!c.isPrimary}" styleClass="form-control isPrimaryAgent" rendered="{!canEditPersonnelInfo}"/>
+                                                                <apex:inputField styleClass="form-control" html-disabled="true" value="{!c.con.IsPrimaryRepresentative__c}" rendered="{!NOT(canEditPersonnelInfo)}" />
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <div class="form-group col-lg-6">
+                                                            <apex:outputLabel styleClass="col-sm-4 {!IF(canEditPersonnelInfo,'control-label', 'output-label')}" value="Job Title" />
+                                                            <div class="col-sm-8">
+                                                                <apex:inputField value="{!c.con.Job_Title__c}" styleClass="form-control" rendered="{!canEditPersonnelInfo}"/>
+                                                                <apex:inputField styleClass="form-control" html-disabled="true" value="{!c.con.Job_Title__c}" rendered="{!NOT(canEditPersonnelInfo)}" />
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <div class="form-group col-lg-6">
+                                                            <apex:outputLabel styleClass="col-sm-4 {!IF(canEditPersonnelInfo,'control-label', 'output-label')}" value="Nationality" />
+                                                            <div class="col-sm-8">
+                                                                <apex:inputField value="{!c.con.cm_Nationality__c}" styleClass="form-control" rendered="{!canEditPersonnelInfo}"/>
+                                                                <apex:outputText styleClass="form-control disabled" value="{!c.con.cm_Nationality__c}" rendered="{!NOT(canEditPersonnelInfo)}" />                                                                                                          
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <div class="form-group col-lg-6">
+                                                            <apex:outputLabel styleClass="col-sm-4 required {!IF(canEditPersonnelInfo,'control-label', 'output-label')}" value="Email" />
+                                                            <div class="col-sm-8">
+                                                                <apex:inputField value="{!c.con.Email}" required="true" styleClass="form-control" rendered="{!canEditPersonnelInfo}"/>
+                                                                <apex:inputField styleClass="form-control" html-disabled="true" value="{!c.con.Email}" rendered="{!NOT(canEditPersonnelInfo)}" />
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <div class="form-group col-lg-6">
+                                                            <apex:outputLabel styleClass="col-sm-4 required {!IF(canEditPersonnelInfo,'control-label', 'output-label')}" value="Mobile" />
+                                                            <div class="col-sm-8">
+                                                                <apex:inputField value="{!c.con.MobilePhone}" onkeypress="return fieldInputLimiter(event,'Numbers');" required="true" styleClass="form-control" rendered="{!canEditPersonnelInfo}"/>
+                                                                <apex:outputText styleClass="form-control disabled" value="{!c.con.MobilePhone}" rendered="{!NOT(canEditPersonnelInfo)}" />
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <div class="form-group col-lg-6">
+                                                            <apex:outputLabel styleClass="col-sm-4 {!IF(canEditPersonnelInfo,'control-label', 'output-label')}" value="Passport_Number" />
+                                                            <div class="col-sm-8">
+                                                                <apex:inputField value="{!c.con.cm_Passport_Number__c}" styleClass="form-control" rendered="{!canEditPersonnelInfo}"/>
+                                                                <apex:inputField styleClass="form-control" html-disabled="true" value="{!c.con.cm_Passport_Number__c}" rendered="{!NOT(canEditPersonnelInfo)}" />
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="form-group col-lg-6">
+                                                            <apex:outputLabel styleClass="col-sm-4 {!IF(canEditPersonnelInfo,'control-label', 'output-label')}" value="Passport Expiry Date" />
+                                                            <div class="col-sm-8">
+                                                                <apex:input type="date" value="{!c.PassportExpiryDate}" onfocus="this.blur" onkeypress="this.blur()" styleClass="form-control onlyFutureInput" rendered="{!canEditPersonnelInfo}" html-autocomplete="off"/>
+                                                                <apex:outputText value="{0, date, dd/MM/yyyy}" rendered="{!NOT(canEditPersonnelInfo)}" styleClass="form-control disabled">
+                                                                    <apex:param value="{!c.con.cm_Passport_Expiry_Date__c}" /> 
+                                                                </apex:outputText>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <div class="form-group col-lg-6 shareHoldingPercentage">
+                                                            <apex:outputLabel styleClass="col-sm-4 required {!IF(canEditPersonnelInfo,'control-label', 'output-label')}" value="Shareholding %" />
+                                                            <div class="col-sm-8">
+                                                                <apex:inputField value="{!c.con.Shareholding__c}" onkeypress="return fieldInputLimiter(event,'Numbers');" styleClass="form-control" rendered="{!canEditPersonnelInfo}"/>
+                                                                <apex:outputText styleClass="form-control disabled" value="{!c.con.Shareholding__c}" rendered="{!NOT(canEditPersonnelInfo)}" />
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <div class="form-group col-lg-6">
+                                                            <apex:outputLabel styleClass="col-sm-4 required {!IF(canEditPersonnelInfo,'control-label', 'output-label')}" value="Role" />
+                                                            <div class="col-sm-8 contact-roles">
+                                                                <apex:repeat value="{!c.picklistWrp}" var="role">
+                                                                    <div class="checkbox">
+                                                                        <label data-toggle="tooltip" data-placement="right" title="{!role.helpText}">
+                                                                            <apex:inputCheckbox onclick="populateShareHoldingPercentage(this);" styleClass="{!SUBSTITUTE(role.value,' ','_')}" value="{!role.isSelected}" disabled="{!IF(canEditPersonnelInfo,false,true)}" />{!role.value}
+                                                                        </label>
+                                                                    </div>
+                                                                </apex:repeat>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                    </div>
+                                </div>
+                              </div>
+                            </apex:repeat>
+                            <div class="row">
+                                <div class="col-xs-12 action-btns action-btns-row text-center">
+                                    <apex:outputPanel layout="none" rendered="{!canEditPersonnelInfo}">
+                                        <apex:commandButton value="Add Agent" styleClass="btn btn-default" oncomplete="initToolTip();initDatesInputs();" action="{!addAgent}" status="loader" reRender="agentDetails" />
+                                        <apex:commandButton value="Next" styleClass="btn btn-primary" onclick="if(validateAgents() == false){return false;}" action="{!saveAgents}" status="loader" reRender="pg" oncomplete="reloadPage();" />
+                                    </apex:outputPanel> 
+                                </div>
+                            </div>
+
+                        </div> <!-- @END:panel group -->
+                        </apex:form>
+                    </div> <!-- @END:company personel -->
+                </apex:outputPanel> <!-- @END:company personnel -->
+
+                <div role="tabpanel" class="tab-pane {!IF(accountRecord.Site_Page_Indicator__c == 3, 'active', '')}" id="documentation">
+                    <apex:form id="form" styleClass="form-horizontal">  
+                        <apex:actionFunction name="SaveData" action="{!upload}" />
+                        <div class="panel-group" id="documentationAccordian" role="tablist" aria-multiselectable="true">
+                        <apex:repeat var="object" value="{!objectTitleToLISTWrapperMap}">
+                            <div class="panel panel-default">
+                                <div class="panel-heading" role="tab">
+                                  <h4 class="panel-title">
+                                    <a role="button" data-toggle="collapse" data-parent="#{!SUBSTITUTE(object,' ', '')}" href="#{!SUBSTITUTE(object,' ', '')}" aria-expanded="true" aria-controls="{!SUBSTITUTE(object,' ', '')}">
+                                      {!objectTitleToLISTWrapperMap[object][0].title} - Documents
+                                    </a>
+                                  </h4>
+                                </div>
+                                <div id="{!SUBSTITUTE(object,' ', '')}" class="panel-collapse collapse in" role="tabpanel">
+                                  <div class="panel-body">
+                                        <apex:variable var="counter" value="{!1}" />
+                                        <apex:repeat value="{!objectTitleToLISTWrapperMap[object]}" var="con" id="DocLists">
+                                            <div class="row">
+                                                <div class="col-xs-12 form-section">
+                                                    <h3 class="no-padding">
+                                                      <label class="{!IF(con.supportObj.Required_Broker_Document__c, 'required', '')}">{!counter}. {!con.supportObj.Name__c}</label>
+                                                    </h3>
+                                                </div>
+
+                                                <apex:outputPanel layout="none" rendered="{!con.Attachment.Id != ''}">
+                                                    <apex:outputText value="" styleClass="uploaded-documents {!IF(con.supportObj.Required_Broker_Document__c, 'required', '')}" rendered="{!NOT(ISBLANK(con.Attachment.Id))}" />
+                                                    <div class="col-xs-12">
+                                                        <b>File Name:</b> {!con.Attachment.Name}
+                                                    </div>
+                                                </apex:outputPanel>
+
+                                                <apex:outputPanel layout="none" rendered="{!canEditDocumentation}">
+                                                    <div class="col-xs-12 upload-document-input-wrp index-{!con.index}">
+                                                        <apex:inputFile value="{!con.Attachment.body}" styleclass="upload {!IF(con.supportObj.Required_Broker_Document__c, 'required', '')}" filename="{!con.Attachment.name}" id="file"  />
+                                                         <a class="btn btn-primary btn-xs upload-btn" role="button" onclick="resetOtherDocuments('{!con.index}');doDocumentUpload('{!con.index}')">
+                                                             <apex:outputText value="{!IF(con.Attachment.Id == '', 'Upload', 'Replace')}" /> 
+                                                         </a>                       
+                                                    </div>
+                                                </apex:outputPanel>
+                                            </div>
+                                            <apex:variable var="counter" value="{!counter + 1}" />
+                                        </apex:repeat>
+                                    </div>
+                                </div>
+                            </div>
+                        </apex:repeat>
+                        <apex:outputPanel layout="block" styleClass="row" rendered="{!canEditDocumentation}">
+                            <div class="col-xs-12 text-center action-btns-row">
+                                <button type="button" onclick="validateDocuments();" class="btn btn-primary">Submit</button>
+                            </div>
+                        </apex:outputPanel>
+                        </div> <!-- @END:panel-group --> 
+                        <apex:inputHidden value="{!supportId }" id="supportId"/>   
+                    </apex:form>
+                    <apex:form id="submissionForm">
+                        <apex:actionFunction name="doSubmitBroker" action="{!submitBroker}" status="loader" reRender="pg" oncomplete="refreshPage('{!accountRecord.Id}');" />
+                    </apex:form>
+                </div> <!-- @END:documentation -->
+              </div>
+            </div> <!-- @END:col-xs-12 -->
+        </div> <!-- @END:row -->
+    </apex:outputPanel> <!-- @END:outputpanel -->
+
+    <apex:form >
+        <!-- 
+        <apex:actionFunction name="navigateToTab" action="{!navigateToTab}" status="loader" reRender="pg">
+            <apex:param name="currentTabId" assignTo="{!currentTabId}" value="" />
+        </apex:actionFunction>
+        -->
+    </apex:form>
+
+    <apex:form >
+      <apex:actionFunction name="deleteAgent" action="{!deleteAgent}" status="loader" oncomplete="initToolTip();initDatesInputs();" reRender="pg">
+        <apex:param name="selectedAgentIndex" assignTo="{!selectedAgentIndex}" value="" />
+      </apex:actionFunction>
+    </apex:form>
+
+        <script type="text/javascript">
+        var tradeLicenseError = 0;
+        $('#brokerTabs a').click(function (e) {
+              e.preventDefault();
+              $(this).tab('show');
+        });
+
+        function doDocumentUpload(index){
+            $('input[id*=supportId]').val(index);
+            SaveData();
+            showLoader();
+        }
+
+        function showLoader(){
+            $('.loader_wrapper').parent().show();
+        }
+
+        function validateBasicInfo(){
+            var isValid = false;
+            var errorMsg = '';
+            $('.pageMsgs .alert').remove();
+            $('.pageMsgs .message').remove();
+            if(tradeLicenseError > 0){
+                isValid = false;
+                errorMsg = 'Trade License already exist.';
+                var msgEl = '<div class="alert alert-danger" role="alert">'+errorMsg+'</div>';
+                $('.pageMsgs').append(msgEl);
+                $("html, body").animate({ scrollTop: 0 }, 600);
+                return isValid;
+            }else{
+                isValid = true;
+            }
+
+            if($('input.iban-number').val() != '' && $('input.iban-number').val() != $('input.confirm-iban-number').val()){
+              isValid = false;
+              errorMsg = 'IBAN Number is not identical.';
+              var msgEl = '<div class="alert alert-danger" role="alert">'+errorMsg+'</div>';
+                $('.pageMsgs').append(msgEl);
+                $("html, body").animate({ scrollTop: 0 }, 600);
+                return isValid;
+            }else{
+              isValid = true;
+            }
+            
+           return isValid;
+        }
+
+        function validateAgents(){
+            var isValid = true;
+            var selectedPrimaryContacts = $('.isPrimaryAgent:checked').length;
+            /*
+            var selectedRolesElements = $('select[title="Role - Chosen"]');
+            var availableRoles = '{!userContactRoles}'.slice(1,-1).split(','); 
+            availableRoles = availableRoles.map(function (el) {
+              return el.trim();
+            });
+            */
+
+            var errorMsg = '';
+            $('.pageMsgs .alert').remove();
+
+            $('select[title="Role - Chosen"] option').each(function(){
+              availableRoles.remove($(this).text().trim());              
+            });
+
+            $('input.agent_first_name').each(function(){
+              if($(this).val() == ''){
+                isValid = false;
+                errorMsg += '<p>Agent First Name is required.</p>';
+              }
+            });
+
+            $('input.agent_last_name').each(function(){
+              if($(this).val() == ''){
+                isValid = false;
+                errorMsg += '<p>Agent Last Name is required.</p>';
+              }
+            });
+
+            if(selectedPrimaryContacts == 0){
+                isValid = false;
+                errorMsg += '<p>There must be atleast one primary contact selected.</p>';
+            }else if(selectedPrimaryContacts > 1){
+                isValid = false;
+                errorMsg += '<p>There can be only one primary contact.</p>';
+            }
+
+            var allRoleSelected = true;
+            $('.contact-roles').each(function(){
+              if($(this).find('input[type="checkbox"]:checked').length == 0){
+                isValid = false;
+                errorMsg += '<p>Agent role is required.</p>';
+              }
+
+              $(this).find('input[type="checkbox"]').each(function(){
+                var className = $(this).attr('class');
+                if($('input.'+className+':checked').length == 0){
+                    allRoleSelected = false;
+                }
+              });
+            });
+            
+            if(allRoleSelected == false){
+              isValid = false;
+              errorMsg += '<p>Please ensure there is atleast one Contact for each Role. One Contact may also have multiple roles.</p>';   
+            }
+
+            /*
+            $('select[title="Role - Chosen"]').each(function(){
+              if($(this).find('option').length == 0){
+                isValid = false;
+                errorMsg += '<p>Agent role is required.</p>';
+              }
+            });
+
+            if(availableRoles.length > 0){
+                isValid = false;
+                errorMsg += '<p>Each contact role must have an agent associated.</p>';              
+            }
+            */
+
+            if(errorMsg != ''){
+                var msgEl = '<div class="alert alert-danger" role="alert">'+errorMsg+'</div>';
+                $('.pageMsgs').append(msgEl);
+                $("html, body").animate({ scrollTop: 0 }, 600);
+            }
+            return isValid;
+        }
+
+        function validateDocuments(){
+            var isValid = false;
+            var errorMsg = '';
+            var totalDocuments = $('input.upload.required').length;
+            var uploadedDocuments = $('.uploaded-documents.required').length;
+
+            $('.pageMsgs .alert').remove();
+
+            if(uploadedDocuments < totalDocuments){
+                isValid = false;
+                errorMsg = ' Required_Documents_Missing_Error_Msg}';
+            }else{
+                isValid = true;
+            }
+
+            if(errorMsg != ''){
+                var msgEl = '<div class="alert alert-danger" role="alert">'+errorMsg+'</div>';
+                $('.pageMsgs').append(msgEl);
+                $("html, body").animate({ scrollTop: 0 }, 600);
+            }else{
+                doSubmitBroker();
+            }
+        }
+
+        function validateTradeLicense(el){
+            var tradeLicenseNumber = $(el).val();
+            $('p.error').remove();
+            tradeLicenseError = 0;
+            if(tradeLicenseNumber != ''){
+                Visualforce.remoting.Manager.invokeAction(
+                    '{!$RemoteAction.BrokerRegistrationController.searchExistingTradeLicense}', 
+                    tradeLicenseNumber, 
+                    function(result, event){
+                        if (event.status) {
+                            if(parseInt(result) > 0){
+                                $(el).parent().append('<p class="error">Trade License already exist.</p>');
+                                tradeLicenseError = 1;
+                            }
+                        } else if (event.type === 'exception') {
+                            console.log('Exception: ' + event.message);
+                        } else {
+                            console.log('Error: ' + event.message);
+                        }
+                    },{escape: true}
+                );
+            }
+        }
+
+        function reloadPage(){
+          //alert('reload page...');
+        }
+
+        function navigateToTab(tabId){
+          $('.success-registration').remove();
+        }
+
+        function populateORNInput(value){
+          if(value == 'Dubai'){
+            $('.orn-number,.pera-number,.pera-expirydate').removeClass('hide');
+            $('.orn-number').find('label').addClass('required');  
+          }else if(value != undefined){
+            $('.orn-number,.pera-number,.pera-expirydate').addClass('hide');            
+            $('.orn-number').find('label').removeClass('required');  
+            $('.orn-number,.pera-number,.pera-expirydate').find('input.form-control').val('');
+          }
+          $('input.hasDatepicker').attr('autocomplete', 'off');
+        }
+
+        function refreshPage(id){
+          window.location = '/apex/BrokerRegistration?id='+id;
+        }
+
+        function populateUAEEmiratesInput(value){
+          if(value == 'United Arab Emirates'){
+            $('.uae-emirates-wrapper').removeClass('hide');
+            $('label.uae-emirate,label.license-expiry').addClass('required');
+            $('select.uae-emirate,input.license-expiry').attr('required', true);
+          }else if(value != undefined){
+            $('.uae-emirates-wrapper').addClass('hide');
+            $('label.uae-emirate,label.license-expiry').removeClass('required');            
+            $('select.uae-emirate,input.license-expiry').removeAttr('required');   
+            $('select.uae-emirate').val("");
+            populateORNInput("");
+          }
+          $('input.onlyFutureInput, input.onlyPastInput').attr('autocomplete', 'off');
+        }
+        
+        function populatePOBox(value){
+          if(value == 'United Arab Emirates'){
+            $('label.po-box').addClass('required');
+            $('select.po-box').attr('required', true);
+          }else{
+            $('label.po-box').removeClass('required');            
+            $('select.po-box').removeAttr('required');   
+          }
+        }
+        
+        function fieldInputLimiter(e,type) {
+            var AllowedChars = '';
+
+            if (type == 'Letters'){AllowedChars=' ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';}
+            if (type == 'Numbers'){AllowedChars='1234567890';}
+            if (type == 'NameCharacters'){AllowedChars=' ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-.\'';}
+            if (type == 'NameCharactersAndNumbers'){AllowedChars='1234567890 ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-\'';}
+            if (type == 'Currency'){AllowedChars='1234567890.';}
+
+            var str = document.all?parseInt(e.keyCode): parseInt(e.which);
+            if (str!=13 && str!=8 && str!=0){
+                if ((e.ctrlKey==false) && (e.altKey==false)) {
+                return (AllowedChars.indexOf(String.fromCharCode(str))!=-1);
+                } else {
+                return true;
+                }
+            } else {
+                return true;
+            }
+        }
+
+        function validateBankInfo(bankName){
+          if(bankName == 'United Arab Emirates'){
+            $('.bank-details input').attr('required',true);
+            $('.bank-details label').addClass('required');
+          }else{
+            $('.bank-details input').removeAttr('required');
+            $('.bank-details label').removeClass('required');            
+          }
+        }
+
+        // Removes an element from an array.
+        // String value: the value to search and remove.
+        // return: an array with the removed element; false otherwise.
+        Array.prototype.remove = function(value) {
+        var idx = this.indexOf(value);
+        if (idx != -1) {
+            return this.splice(idx, 1); // The second parameter is the number of elements to remove.
+        }
+        return false;
+        }
+
+        function initToolTip(){
+          $('[data-toggle="tooltip"]').tooltip();
+        }
+
+        $(document).ready(function(){
+          initToolTip();
+          initRequiredInputs();
+          initDatesInputs();
+        });
+        
+        function initRequiredInputs(){
+            $(".required-select select").each(function(){
+                $(this).attr("required", true);
+            });
+
+            populateORNInput($('select.uae-emirate').val());
+            
+            populateUAEEmiratesInput($('select.country-of-incorporation').val());
+
+            $('input.onlyFutureInput, input.onlyPastInput').attr('autocomplete', 'off');
+
+            //iterate on roles checkboxes to make the shareholding percentage required/not
+            $('.contact-roles input[type="checkbox"].Admin').each(function(){
+              populateShareHoldingPercentage($(this));
+            });
+        }
+        
+        function initDatesInputs(){
+
+            $('.onlyFutureInput').datepicker({
+                changeMonth: true,
+                changeYear: true,
+                minDate: 0
+            });
+
+            $('.onlyPastInput').datepicker({
+                changeMonth: true,
+                changeYear: true,
+                maxDate: 0
+            });
+
+            $('input.onlyFutureInput, input.onlyPastInput').attr('autocomplete', 'off');
+            $('input.iban-number,input.confirm-iban-number').attr("maxlength",23);
+        }
+        
+        function resetOtherDocuments(currentIndex){
+            $('.upload-document-input-wrp').each(function(){
+                if(!$(this).hasClass('index-'+currentIndex)){
+                    $(this).find('input[type="file"]').val("");
+                }
+            });
+        }
+
+        function initPageMessages(){
+          $("html, body").animate({ scrollTop: 0 }, "slow"); 
+        }
+
+        function populateShareHoldingPercentage(el){
+          var isAdmin = $(el).hasClass('Admin') && $(el).is(':checked') ? true : false;
+          var shareHoldingElement = $(el).closest("div.panel-body").find(".shareHoldingPercentage");
+          if(isAdmin){
+            shareHoldingElement.find('input.form-control').removeAttr('required');
+            shareHoldingElement.find('label.control-label').removeClass('required');
+          }else{
+            shareHoldingElement.find('input.form-control').attr('required', true);
+            shareHoldingElement.find('label.control-label').addClass('required');
+          }
+        }
+
+        </script>
+        <apex:actionStatus id="loader">
+            <apex:facet name="start">
+            <div class="loader_wrapper">&nbsp;</div>
+                <div class="loader_image"><img src="{!URLFOR($Resource.BrokerAssets, 'BrokerAssets/images/LoadSpinner.gif')}" /></div>
+            </apex:facet>
+        </apex:actionStatus>
+        <style>
+        span.disabled{
+            cursor: not-allowed;
+            background-color: #eee;
+            opacity: 1;    
+        }
+        </style>
+
+    </apex:define> <!-- @END:body -->
+</apex:composition>
+</apex:page>

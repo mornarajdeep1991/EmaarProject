@@ -1,0 +1,213 @@
+<apex:page standardController="Opportunity" extensions="CM_AddJointOwnersController" id="thepg"  standardStylesheets="false" sidebar="false" action="{!CheckAgent}">
+    <head>
+        <title>Add Joint Owners</title>
+        <apex:slds /> 
+    </head>
+
+    <apex:stylesheet value="{!URLFOR ($Resource.EmaarCSS, 'css/tabcontent.css')}"/>
+    <apex:includeScript value="{!URLFOR ($Resource.EmaarCSS, 'js/tabcontent.js')}"/>
+    <apex:includeScript value="{!URLFOR ($Resource.EmaarCSS, 'js/jquery-latest.js')}" />
+    <apex:includeScript value="{!URLFOR ($Resource.EmaarCSS, 'js/jquery.tablesorter.js')}" />
+    <apex:includeScript value="{!URLFOR ($Resource.EmaarCSS, 'js/jquery.tablesorter.pager.js')}" />
+    <apex:includeScript value="{!URLFOR ($Resource.EmaarCSS, 'js/jquery.tablesorter.widgets.js')}"/>
+    <apex:stylesheet value="{!URLFOR ($Resource.EmaarCSS, 'css/style.css')}"/>
+    <apex:stylesheet value="{!URLFOR ($Resource.EmaarCSS, 'css/style-yesdata.css')}"/>
+    <apex:stylesheet value="{!URLFOR($Resource.SLDS0203, 'assets/styles/salesforce-lightning-design-system-vf.min.css')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.SLDS0203, 'assets/styles/salesforce-lightning-design-system-vf.css')}"/>
+<style> 
+.myClass {
+    color: white !important;
+    background: #05578A  !important;
+}
+.popupBackground {
+             /* Background color */
+             background-color:black;
+             opacity: 0.20;
+             filter: alpha(opacity = 20);
+          
+             /* Dimensions */
+             width: 100%;
+             height: 100%;
+             top: 0;
+             left: 0;
+             z-index: 998;
+             position: absolute;
+         }
+         .PopupPanel {
+             left: 50%;
+             width: 100px;
+             //margin-left: -100px;
+             border-radius: 15px
+             top: 50%;
+             height: 100px;
+             margin-top: 200px;
+             z-index: 999;
+             position: fixed;
+         }
+    .slds .slds-container--center {
+                    padding: 15px;border: 1px solid rgb(216, 221, 230);
+                    background: rgb(244, 246, 249);border-radius: 0.25rem;}
+    .slds .slds-modal__footer{
+    box-shadow: none;
+    background-color: #f4f6f900;
+    border-top: 1px solid #d8dde6;
+    margin-top: 15px;
+    padding: 15px 0px 0px 0px;
+    }
+    .slds-button--brand{ background-color: #f7911e !important;border: 1px solid #e88618 !important;}
+ </style>
+    <body>
+        
+    
+     <div class="slds">
+            
+         <div class="slds-page-header">
+             <div class="slds-media">
+                 <div class="slds-media__figure">
+                     <span class="slds-icon_container slds-icon-standard-opportunity" title="Description of icon when needed">
+                         <svg class="slds-icon slds-page-header__icon" aria-hidden="true">
+                             <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="{!URLFOR($Resource.SLDS0203, '/assets/icons/standard-sprite/svg/symbols.svg#opportunity')}" />
+                         </svg>
+                     </span>
+                 </div>
+                 <div class="slds-media__body">
+                     <h1 class="slds-page-header__title slds-truncate slds-align-middle" title="{!Opportunity.Name}">{!Opportunity.Name}</h1>
+                     <p class="slds-text-body_small slds-line-height_reset">Emaar Development</p>
+                 </div>
+             </div>
+         </div>
+         <br/>
+    
+    <!--c:EmaarHeaderComponent Title="EMAAR" Subtitle="Add Joint Owners - {!Opportunity.Name}" /-->
+    <apex:pageMessages id="pgmsg"></apex:pageMessages>
+    <apex:form id="thefm">
+    <apex:actionFunction name="saveRecordsfn" action="{!saveRecords}" status="pleasewait" rerender="outpnl,pgmsg" onComplete="dataMessage();return false;"/>
+    <apex:actionFunction name="AddRowfn" action="{!AddRow}" rerender="outpnl" onComplete="dataMessage();return false;" status="pleasewait" />
+   <apex:actionStatus id="pleasewait" stopText="">
+    <apex:facet name="start">
+        <div>
+            <div class="popupBackground"></div>
+            <div class="PopupPanel">
+                <img src="{!$Resource.LoadingGIF}"/>
+            </div>
+        </div>
+    </apex:facet>
+    </apex:actionStatus>
+        <apex:outputPanel id="thepbresults" title=""  >
+           <div class="slds-container--center slds-container--full" style="margin-top: 6px;">
+                <h3 style="font-size: 16px;">Add Joint Owners</h3>
+                <apex:outputPanel id="outpnl">
+                    <table cellpadding="3" id="resultstbl" class="tablesorter slds-table slds-table--bordered slds-table--cell-buffer" style="width:100%;">
+                        <thead>
+                            <tr>
+                                <th width="15%">Joint Owner</th>
+                                <th width="15%">Phone</th>
+                                <th width="15%">Nationality</th>
+                                <th width="15%">Preferred Language</th>
+                                <th width="10%">Remove</th>
+                            </tr>
+                        </thead>
+                        <tbody  id="resultsbodyID"> 
+                            <apex:repeat var="objpro" value="{!lstwrap}" id="JOtable">
+                                <tr>
+                                    <td>
+                                        <apex:inputField value="{!objpro.jOwn.cm_Joint_Owner__c}" rendered="{!if(objpro.jOwn.id!=null,false,true)}" id="JOID" onchange="AutoPopulatedata('{!objpro.jOwn.cm_Joint_Owner__c}');return false;"/>
+                                        <apex:outputtext value="{!objpro.strAccountName}" rendered="{!if(objpro.jOwn.id!=null,true,false)}"/>
+                                    </td>
+                                    <td>
+                                        <apex:outputtext value="{!objpro.strAccountPhone}"/>
+                                    </td>
+                                    <td>
+                                        <apex:outputText value="{!objpro.strNationality}" /> 
+                                    </td>
+                                    <td>
+                                        <apex:outputText value="{!objpro.strLanguage}" />
+                                        
+                                    </td>
+                                    <td>
+                                        <div style="text-align:center;">
+                                            <apex:commandLink action="{!RemoveRow}" rerender="outpnl,pgmsg" status="pleasewait" onComplete="dataMessage();return false;">
+                                                <apex:image value="{!$Resource.RemoveIcon}" style="width:15px; height:15px"/> 
+                                                <apex:param name="selIndex" value="{!objpro.index}" assignTo="{!selIndex}" />
+                                            </apex:commandLink>
+                                            
+                                            
+                                        </div>
+                                    </td>
+                                </tr>
+                            </apex:repeat> 
+                        </tbody>
+                    </table>
+                </apex:outputPanel>
+               
+               
+               <!-- Pagination -->
+                <!--div id="pagerdiv" align="right" -->  
+                <form> 
+                 <div id="pagerdiv">
+                    <table style="width:100%"> 
+                        <tr>
+                            <td style="width:50%;align:left;">Showing Rows <select class="pagesize js_bottom_pagesize" id="PageSizeid">
+                                <option   selected="selected" value="20">20</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>      
+                                <option   value="150">150</option>    
+                                </select></td>
+                            <td ><div id="js_bottom_lable" class="js_bottom_lable"></div></td>
+                            <td style="width:2%"><div class="first js_bottom_first"></div></td>
+                            <td style="width:2%"><div   class="prev js_bottom_prev"></div></td>
+                            <td style="width:5%"><input id="bottom_PagecountId" type="text" class="pagedisplay js_bottom_pagger" disabled="disabled"/></td>
+                            <td style="width:2%"><div class="next js_bottom_next" ></div></td>
+                            <td style="width:2%"><div class="last js_bottom_last" ></div></td>
+                            
+                        </tr>
+                    </table> 
+                     </div>
+                </form> 
+               <div class="slds-modal__footer">
+                   <apex:commandButton value="Add Joint Owner" onClick="AddRecord();return false;" styleClass="slds-button slds-button--brand"/>
+                   <apex:commandButton value="Save" action="{!saveRecords}" status="pleasewait" style="display:none;" styleClass="slds-button slds-button--brand"/>
+                   <apex:commandButton value="Done" action="/{!Opportunity.id}" styleClass="slds-button slds-button--brand"/>
+               </div>
+            </div>
+            
+           
+            
+            
+    </apex:outputPanel>
+    </apex:form>
+    <script>
+    window.onload = dataMessage();
+       function dataMessage(){
+           setTimeout(function() {
+               $("#resultstbl").tablesorter({
+                   widthFixed: false,
+                   widgets: [ "zebra", "resizable" ],
+                   widgetOptions: {
+                     resizable_addLastColumn : true
+                   }
+               }).tablesorterPager({
+                   container: $("#pagerdiv")
+               });
+           }, 2000);
+           $("#resultstbl").tablesorter({
+               headers: {1: {sorter: true},2: {sorter: true},4: {sorter: false},5:{sorter: false},6:{sorter: false}} 
+           });
+        }
+        function AutoPopulatedata(Id){
+            saveRecordsfn();
+            AddRecChecker = 'false';
+        }
+         var AddRecChecker = 'false';
+        function AddRecord(){
+            if(AddRecChecker == 'true'){
+                alert('Please select the record for the added row');
+            }else{
+                AddRowfn();
+                AddRecChecker = 'true';
+            }
+        }
+    </script>
+        </div>
+    </body>
+</apex:page>

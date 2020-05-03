@@ -1,0 +1,88 @@
+<!-- 
+*********************************************************************************
+Author      : Sri vijitha (sri.mutyala@weare4c.com)
+Created Date: 31/03/2019
+Function    : Visualforce page to show broker uploaded documents
+Version     : 1.0 
+*********************************************************************************
+--> 
+<apex:page controller="BrokerDocumentsController" showHeader="false" sidebar="false" applyHtmlTag="false" applyBodyTag="false" cache="false">
+<apex:composition template="Broker_BaseTemplate">
+    <apex:define name="PageTitle">Related Documents</apex:define>
+    <apex:define name="body">
+        <div class="row">
+            <div class="col-xs-12 text-center">
+                <h2 class="pageTitle">Related Documents</h2>
+            </div>
+        </div>
+
+        <div class="panel-group" id="documentationAccordian" role="tablist" aria-multiselectable="true">
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab">
+                  <h4 class="panel-title">
+                    <a role="button" data-toggle="collapse" data-parent="#relatedDocument" href="#relatedDocument" aria-expanded="true" aria-controls="relatedDocument">
+                      {!relatedRecordName} - Documents
+                    </a>
+                  </h4>
+                </div>
+                <div id="relatedDocument" class="panel-collapse collapse in" role="tabpanel">
+                  <div class="panel-body">
+                    <apex:form id="form">
+                        <apex:actionFunction name="SaveData" action="{!upload}" />
+                        <apex:variable var="index" value="{!0}" />
+                        <apex:repeat value="{!wrapperUploadList}" var="con" id="DocLists">
+                            <div class="row">
+                                <div class="col-xs-12 form-section">
+                                    <h3 class="no-padding">{!con.documentWrp.Name}</h3>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-xs-6">
+                                    <b>File Name : </b>
+                                    <apex:outputText value="{!con.documentWrp.AttachmentName}"/>
+                                    <apex:outputPanel layout="block" styleClass="row" id="OutPanalIds" rendered="{!con.documentWrp.Accepted =='No'}">
+                                        <div class="col-xs-6">
+                                            <apex:inputFile value="{!con.Attachment.body}" styleclass="upload" filename="{!con.Attachment.name}" id="file" />
+                                            <a class="btn btn-primary btn-xs upload-btn" role="button" onclick="doDocumentUpload('{!index}')">
+                                                <apex:outputText value="{!IF(con.Attachment.Name == '', 'Upload', 'Replace')}" /> 
+                                            </a>
+                                        </div>
+                                    </apex:outputPanel> <!-- @END:SHOW panel if document gets rejected or not uploaded previously -->
+                                </div>
+
+                                <div class="col-xs-6">
+                                    <b>Accepted : </b><apex:outputText value="{!con.documentWrp.Accepted}" />
+                                    <apex:outputPanel layout="block" rendered="{!con.documentWrp.Accepted == 'No'}">
+                                        <b>Rejection Reason : </b> <apex:outputText value="{!con.documentWrp.Rejection_Reason}" />
+                                    </apex:outputPanel>
+                                </div>
+                            </div>
+                            <apex:variable var="index" value="{!index + 1}" />
+                        </apex:repeat>
+                        <apex:inputHidden value="{!supportId }" id="supportId"/>                       
+                    </apex:form>
+                  </div>
+                </div>
+            </div>
+        </div>
+        <script type="text/javascript">
+            function doDocumentUpload(index){
+                $('input[id*=supportId]').val(index);
+                SaveData();
+                showLoader();
+            }
+
+            function showLoader(){
+                $('.loader_wrapper').parent().show();
+            }
+        </script>
+        <apex:actionStatus id="loader">
+            <apex:facet name="start">
+            <div class="loader_wrapper">&nbsp;</div>
+            <div class="loader_image"><img src="{!URLFOR($Resource.BrokerAssets, 'BrokerAssets/images/LoadSpinner.gif')}" /></div>
+            </apex:facet>
+        </apex:actionStatus>
+    </apex:define>
+</apex:composition>
+</apex:page>

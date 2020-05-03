@@ -1,0 +1,338 @@
+<apex:page standardController="Opportunity" extensions="Cm_PaymentTerms" standardStylesheets="false" sidebar="false">
+    <head>
+        <title>Opportunity Payment Terms</title>   
+    </head>
+    <apex:stylesheet value="{!URLFOR($Resource.SLDS0203, 'assets/styles/salesforce-lightning-design-system-vf.min.css')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.SLDS0203, 'assets/styles/salesforce-lightning-design-system-vf.css')}"/>
+    <style> 
+        .myClass {
+        color: white !important;
+        background: #05578A  !important;
+        }
+        .popupBackground {
+        /* Background color */
+        background-color:black;
+        opacity: 0.20;
+        filter: alpha(opacity = 20);
+        
+        /* Dimensions */
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        z-index: 998;
+        position: absolute;
+        }
+        
+        .PopupPanel {
+        left: 50%;
+        width: 100px;
+        border-radius: 15px
+        top: 50%;
+        height: 100px;
+        margin-top: 200px;
+        z-index: 999;
+        position: fixed;
+        }
+        
+        .slds-button_brand, .slds-button--brand, .btn {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+        text-align: center !important;
+        vertical-align: middle !important;
+        border: 1px solid #dddbda !important;
+        transition: border 0.15s linear !important;
+        background-color: #0070d2 !important;
+        border-color: #0070d2 !important;
+        color: white !important;
+        }
+        .slds .slds-container--center {
+        padding: 15px;border: 1px solid rgb(216, 221, 230);
+        background: rgb(244, 246, 249);border-radius: 0.25rem;}
+        .slds .slds-p-top--medium{padding:0 !important}
+        .slds .slds-table--bordered{border: 1px solid #d8dde6;}
+        .slds .slds-form-element__label{color: rgb(84, 105, 141);}
+        .slds .slds-input-has-icon .slds-input__icon{fill: #f7911e;}
+        .slds .slds-input-has-icon--right .slds-input--bare{background:#fff;border-radius: 0.25rem;}
+        .slds-page-header {
+        padding: 1rem;
+        border-bottom: 1px solid #dddbda;
+        border-radius: 0.25rem;
+        background: #f3f2f2;
+        background-clip: padding-box;
+        -webkit-box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.1);
+        box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.1);
+        border: 1px solid #dddbda;
+        }   
+        
+        .terms-container i {
+            border: solid black;
+            border-width: 0 2px 2px 0;
+            display: inline-block;
+            padding: 3px;
+            margin-bottom: 2px;
+            margin-right: 2px;
+        }
+        
+        .terms-container .down {
+            transform: rotate(45deg);
+            -webkit-transform: rotate(45deg);
+        }
+        
+        .terms-container .right {
+            transform: rotate(-45deg);
+            -webkit-transform: rotate(-45deg);
+        }
+
+        .terms-container .sub-down {
+            transform: rotate(45deg);
+            -webkit-transform: rotate(45deg);
+        }
+        
+        .terms-container .sub-right {
+            transform: rotate(-45deg);
+            -webkit-transform: rotate(-45deg);
+        }
+
+        .slds .slds-section{
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 5px;
+        }
+
+        .slds-section.slds-is-open .right{
+            display: none;
+        }
+
+        .slds-section.slds-is-open .down{
+            display: inline-block !important;
+        }
+
+        .slds-section .slds-section__content{
+            display: none;
+        }
+
+        .slds-section.slds-is-open .slds-section__content{
+            display: block !important;
+        }
+
+        .slds-sub-section{
+            border: 1px solid #ccc;
+            padding: 9px;
+            background: #ffffff;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            margin-left: 15px;
+            margin-right: 15px;
+        }
+
+        .slds-section__content{
+            padding-top: 5px !important;
+        }
+
+        .slds-sub-section-content{
+            padding-top: 10px;
+        }
+
+        .slds-sub-section i{
+            border-color: #0070d2 !important;
+            margin-bottom: 0px !important;
+        }
+
+        .sub-section-heading{
+            cursor: pointer;
+            color: #0070d2 !important;
+        }
+
+        .sub-section-heading:after {
+            content: "\02795"; /* Unicode character for "plus" sign (+) */
+            font-size: 13px;
+            color: #0070d2 !important;
+            float: right;
+            margin-left: 5px;
+        }
+
+        .sub-section-heading.active:after {
+            content: "\2796"; /* Unicode character for "minus" sign (-) */
+            color: #0070d2 !important;
+        }
+
+    </style>
+    <body>
+        <div class="slds">
+            <div class="slds-page-header">
+                <div class="slds-media">
+                    <div class="slds-media__figure">
+                        <span class="slds-icon_container slds-icon-standard-opportunity" title="Opportunity Payment Term" style="padding:6px;">
+                            <svg class="slds-icon slds-page-header__icon" aria-hidden="true">
+                                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="{!URLFOR($Resource.SLDS0203, '/assets/icons/standard-sprite/svg/symbols.svg#opportunity')}" />
+                            </svg>
+                        </span>
+                    </div>
+                    <div class="slds-media__body">
+                        <h1 class="slds-page-header__title slds-truncate slds-align-middle" title="{!Opportunity.Name}">{!Opportunity.Name}</h1>
+                        <p class="slds-text-body_small slds-line-height_reset">Payment Terms</p>
+                    </div>
+                </div>
+            </div>
+            <br/>
+            <apex:form >
+                <!-- Loading GIF -->
+                <apex:actionStatus id="pleasewait" stopText="">
+                    <apex:facet name="start">
+                        <div>
+                            <div class="popupBackground"></div>
+                            <div class="PopupPanel">
+                                <img src="{!$Resource.Loading}"/>
+                            </div>
+                        </div>
+                    </apex:facet>
+                </apex:actionStatus>
+                <!-- Loading GIF -->
+                
+                <apex:actionFunction action="{!ServiceCall}" name="ServiceCallfn" rerender="pb" status="pleasewait" oncomplete="initCheckboxes();initToggle();"/>
+                <nav role="navigation">
+                    <p id="bread-crumb-label" class="slds-assistive-text">Navigating back</p>
+                    <ol class="slds-breadcrumb slds-list--horizontal" aria-labelledby="bread-crumb-label">
+                        <li class="slds-list__item slds-text-heading--label">
+                            <apex:commandLink value="<<Back to Opportunity" action="/{!$CurrentPage.parameters.id}" rendered="{!!blncheck}"/><br/>
+                            <apex:commandButton rendered="{!orderNumber == '' && orderNumber == null}" value="Done" oncomplete="window.open('/{!$CurrentPage.parameters.id}', '_top');" action="{!submitTermSelection}"  status="pleasewait" reRender="pb" styleClass="slds-button slds-button_brand"/>
+                            <apex:commandLink value="<<Back to Special Approval" action="/{!$CurrentPage.parameters.SPAID}" rendered="{!blncheck}"/>
+                        </li>
+                    </ol>
+                </nav>
+                
+                <div class="slds-container--center slds-container--full terms-container" style="margin-top: 6px;">
+                    <apex:pageMessages id="pgmsg"></apex:pageMessages>
+                    <apex:outputPanel title="Payment Terms"  id="pb">
+                        <apex:repeat value="{!lstPropertyUnitwrap}" var="obj">
+                            <div class="slds-section">
+                                <h3 class="slds-section__title">
+                                    <a href="javascript:void(0)" class="section-heading">
+                                        <i class="arrow down" style="display: none;"></i>
+                                        <i class="arrow right"></i>
+                                        <span class="slds-truncate" title="Location - {!obj.strUnitName}">Location - {!obj.strUnitName}</span>
+                                    </a>
+                                </h3>
+                                <div aria-hidden="true" class="slds-section__content">
+                                    <apex:repeat value="{!obj.lstCampaignWrap}" var="camp">
+                                        <div class="slds-sub-section">
+                                            <div class="slds-sub-section-title">
+                                                <label><apex:inputCheckbox value="{!camp.selectedTerm}" html-data-opId="{!obj.opportunityPropertyId}" styleClass="campaign_select_input"/></label>
+
+                                                <a href="javascript:void(0)" class="sub-section-heading">
+                                                    <label>{!camp.CAMPAIGN_TYPE} - 
+                                                        <apex:outputText value="{0, Number}">
+                                                            {! Opportunity.CurrencyIsoCode}&nbsp;
+                                                            <apex:param value="{!camp.CAMPAIGN_PRICE}" />
+                                                        </apex:outputText>
+                                                    </label>
+                                                </a>
+                                            </div>
+
+                                            <div class="slds-sub-section-content slds-hide">
+                                                <table class="slds-table slds-table--bordered slds-table--fixed-layout">
+                                                    <thead>
+                                                        <tr class="slds-text-title--caps">
+                                                            <th scope="col" style="padding:8px">
+                                                                <div class="slds-truncate" title="Installment">Installment</div>
+                                                            </th>
+                                                            <th scope="col" style="padding:8px">
+                                                                <div class="slds-truncate" title="Percentage Payment">Percentage Payment</div>
+                                                            </th>
+                                                            <th scope="col" style="padding:8px">
+                                                                <div class="slds-truncate" title="Amount">Amount</div>
+                                                            </th>
+                                                            <th scope="col" style="padding:8px">
+                                                                <div class="slds-truncate" title="Effective Date">Effective Date</div>
+                                                            </th>
+                                                            <th scope="col" style="padding:8px">
+                                                                <div class="slds-truncate" title="Maintenance Fees">Maintenance Fees</div>
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <apex:repeat value="{!camp.lstResponsewrap}" var="res">
+                                                            <tr>
+                                                                <td><div class="slds-truncate" >{!res.INSTALLMENT}</div></td>
+                                                                <td><div class="slds-truncate" >{!res.PERCENTAGE_PAYMENT}</div></td>
+                                                                <td>
+                                                                    <div class="slds-truncate">
+                                                                        <apex:outputText value="{0, Number}">
+                                                                            <apex:param value="{!res.SCHEDULE_PRICE}" />
+                                                                        </apex:outputText>
+                                                                    </div>
+                                                                </td>
+                                                                <td><div class="slds-truncate">{!res.EFFECTIVE_DATE}</div></td>
+                                                                <td><div class="slds-truncate">
+                                                                    <apex:outputText value="{0, Number}">
+                                                                        <apex:param value="{!res.MAINTENANCE_PRICE}" />
+                                                                    </apex:outputText>
+                                                                    </div>
+                                                                </td>
+                                                            </tr> 
+                                                        </apex:repeat>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div> <!-- @END:section -->
+                                    </apex:repeat>
+                                </div>
+                            </div>
+                        </apex:repeat>
+                    </apex:outputPanel>
+                    
+                </div>
+            </apex:form>
+        </div>
+    </body>
+    <script>
+    window.onload = Datamanage();
+    function Datamanage(){
+        var orderNum = '{!orderNumber}';
+        if(orderNum == '' || orderNum == null || orderNum == undefined){
+            ServiceCallfn();
+        }
+    }
+
+    function initToggle(){
+        $('a.section-heading').each(function(){
+            $(this).click(function(){
+                var isOpened = $(this).parent().parent().hasClass('slds-is-open');
+                $('.slds-section').removeClass('slds-is-open');
+                if(isOpened){
+                    $(this).parent().parent().removeClass('slds-is-open');                    
+                }else{
+                    $(this).parent().parent().addClass('slds-is-open');                    
+                }
+            });
+        });
+
+        $('a.sub-section-heading').each(function(){
+            $(this).click(function(){
+                var isOpened = $(this).parent().next().hasClass('slds-hide');
+                $('.sub-section-heading').removeClass('active');
+                $('.slds-sub-section-content').addClass('slds-hide');
+                if(isOpened){
+                    $(this).parent().next().removeClass('slds-hide');
+                    $(this).addClass('active');
+                }else{
+                    $(this).parent().next().addClass('slds-hide');                    
+                } 
+            });
+        });
+        $('a.section-heading:eq(0)').parent().parent().removeClass('slds-is-open');
+        $('a.section-heading:eq(0)').click();        
+    }
+    
+    </script>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script>
+        function initCheckboxes(){
+        $('.campaign_select_input').change(function(){
+            var oppId = $(this).attr("data-opId");
+            $('.campaign_select_input[data-opId='+oppId+']').prop('checked',false)
+            $(this).prop('checked',true);
+        });
+    }
+    </script>
+</apex:page>

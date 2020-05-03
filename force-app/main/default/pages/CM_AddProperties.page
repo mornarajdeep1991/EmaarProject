@@ -1,0 +1,396 @@
+<apex:page controller="Cm_AddProperties" id="thepage" sidebar="false" action="{!CheckAgent}">
+    <apex:stylesheet value="{!URLFOR ($Resource.EmaarCSS, 'css/tabcontent.css')}"/>
+    <apex:includeScript value="{!URLFOR ($Resource.EmaarCSS, 'js/tabcontent.js')}"/>
+    <apex:includeScript value="{!URLFOR ($Resource.EmaarCSS, 'js/jquery-latest.js')}" />
+    <apex:includeScript value="{!URLFOR ($Resource.EmaarCSS, 'js/jquery.tablesorter.js')}" />
+    <apex:includeScript value="{!URLFOR ($Resource.EmaarCSS, 'js/jquery.tablesorter.pager.js')}" />
+    <apex:includeScript value="{!URLFOR ($Resource.EmaarCSS, 'js/jquery.tablesorter.widgets.js')}"/>
+    <apex:stylesheet value="{!URLFOR ($Resource.EmaarCSS, 'css/style.css')}"/>
+    <apex:stylesheet value="{!URLFOR ($Resource.EmaarCSS, 'css/style-yesdata.css')}"/>
+<style> 
+.myClass {
+    color: white !important;
+    background: #05578A  !important;
+}
+.popupBackground {
+             /* Background color */
+             background-color:black;
+             opacity: 0.20;
+             filter: alpha(opacity = 20);
+          
+             /* Dimensions */
+             width: 100%;
+             height: 100%;
+             top: 0;
+             left: 0;
+             z-index: 998;
+             position: absolute;
+         }
+         .PopupPanel {
+             left: 50%;
+             width: 100px;
+             //margin-left: -100px;
+             border-radius: 15px
+             top: 50%;
+             height: 100px;
+             margin-top: 200px;
+             z-index: 999;
+             position: fixed;
+         }
+ </style>
+<apex:form id="thefm">
+   <apex:inputhidden value="{!selIndex}" id="hdnselIndex"/>
+   <apex:actionfunction name="reloadAFN" action="{!PrepareExistingProperties}" rerender="thepbresults,pgmsg,outpnl,existingResults" status="pleasewait" onComplete="dataMessage();return false;" />
+   <apex:actionfunction name="removerow" action="{!RemoveRow}"  rerender="thepbresults,pgmsg,outpnl,existingResults" status="pleasewait" onComplete="dataMessage();return false;"/>
+   <apex:actionFunction name="searchDatafn" action="{!doSearch}" rerender="theProId,thepbresults,pgmsg" status="pleasewait" onComplete="dataMessage();return false;"/>
+   <apex:actionStatus id="pleasewait" stopText="">
+    <apex:facet name="start">
+        <div>
+            <div class="popupBackground"></div>
+            <div class="PopupPanel">
+                <img src="{!$Resource.Loading}"/>
+            </div>
+        </div>
+    </apex:facet>
+    </apex:actionStatus>
+    
+      <!-- <c:EmmarHeaderVC Title="EMAAR" Subtitle="Add Properties - {!strOppName}" /> -->
+     <apex:pageMessages id="pgmsg"/>
+    <apex:pageBlock id="thepb" title="Search Filters">
+        <apex:pageBlockButtons location="Bottom">
+             <apex:commandButton value="Search" style="width:100px" styleclass="myClass" onClick="validateFilters();return false;" />
+             <apex:commandButton value="Clear" style="width:100px" styleclass="myClass" onClick="clearfilervalues();return false;" />
+        </apex:pageBlockButtons>
+       <table width="100%">
+                <tr>
+                    <td width="28%">
+                         <table width="100%">
+                             <tr>
+                                 <td class="labelCol" width="30%"> 
+                                     Location Code 
+                                 </td>
+                                 <td width="70%">
+                                    <!--<apex:selectList value="{!selectedLocationCode}" multiselect="false" size="1" id="selProjectId">
+                                        <apex:selectOptions value="{!lstProjectNames}"/>
+                                    </apex:selectList>-->
+
+                                    <apex:inputText value="{!selectedLocationCode}" id="selProjectId"/>
+                                       
+                                </td>
+                             </tr>     
+                        </table>
+                    </td>
+                    <td width="24%">
+                        <table width="100%">
+                             <tr>
+                                 <td class="labelCol" width="30%">
+                                    Building Name
+                                 </td>
+                                 <td  width="70%">
+                                      <apex:selectList value="{!selectedBuildingName}" multiselect="false" size="1" id="selbuildingId">
+                                        <apex:selectOptions value="{!lstBuildingName}"/>
+                                    </apex:selectList>
+                                </td>
+                             </tr>     
+                        </table>
+                    </td>
+                     <td width="22%">
+                        <table width="100%">
+                             <tr>
+                                 <td class="labelCol" width="30%">
+                                     Unit Type
+                                 </td>
+                                 <td  width="70%">
+                                      <apex:selectList value="{!selectedUnitType}" multiselect="false" size="1" id="selUnitTypeId">
+                                        <apex:selectOptions value="{!lstUnitTypes}"/>
+                                    </apex:selectList>
+                                </td>
+                             </tr>     
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td width="24%">
+                        <table width="100%">
+                             <tr>
+                                 <td class="labelCol" width="30%">
+                                     Unit Model
+                                 </td>
+                                 <td  width="70%">
+                                      <apex:selectList value="{!selectedUnitModel}" multiselect="false" size="1" id="selUnitModelId">
+                                        <apex:selectOptions value="{!lstUnitModels}"/>
+                                    </apex:selectList>
+                                </td>
+                             </tr>     
+                        </table>
+                    </td>
+                     <td>
+                         <table width="100%">
+                             <tr>
+                                 <td class="labelCol" width="30%">
+                                     No.of Bedrooms
+                                 </td>
+                                 <td width="70%">
+                                    <apex:selectList value="{!selectedNoofBedrooms}" multiselect="false" size="1" id="selbedroomsId" style="width: 136px;">
+                                        <apex:selectOptions value="{!lstBedrooms}"/>
+                                    </apex:selectList>
+                                </td>
+                             </tr>     
+                        </table>
+                       
+                    </td>
+                    <td style="display:{!IF(ISBLANK(LaunchCampId),'block','none')}">
+                         <table width="100%">
+                             <tr>
+                                 <td class="labelCol" width="30%">
+                                     Campaign
+                                 </td>
+                                 <td width="70%">
+                                    <apex:selectList value="{!selectedCampaign}" multiselect="false" size="1" id="campId" style="width: 136px;">
+                                        <apex:selectOptions value="{!lstCampaigns}"/>
+                                    </apex:selectList>
+                                </td>
+                             </tr>     
+                        </table>
+                       
+                    </td>
+                </tr> 
+        </table>
+    </apex:pageBlock>
+    <apex:pageBlock title="Added Properties" id="existingResults">
+         <table cellpadding="3" class="tablesorter" style="width:100%;">
+                   <thead>
+                        <tr>
+                            <th width="15%">Property Name</th>
+                            <th width="8%">Unit Type</th>
+                            <th width="8%">Unit Model</th>
+                            <th width="10%">Building</th>
+                            <th width="8%">Bedrooms</th>
+                            <th width="10%">Total Area</th>
+                            <th width="10%">Saleable Area</th>
+                            <th width="10%">Selling Price</th>
+                            <th width="10%">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody  id="resultsbodyID"> 
+                    <apex:repeat var="objpro" value="{!lstexistingPropertyWrap}">
+                        <tr>
+                            <td>
+                                <apex:image value="{!$Resource.Unit_Icon}" style="height:15px;width:20px;" rendered="{!if(objpro.objexistingPro.recordtype.name == 'Package',true,false)}"/>
+                                <apex:image value="{!$Resource.Package_Icon}" style="height:15px;width:15px;" rendered="{!if(objpro.objexistingPro.recordtype.name!=null && objpro.objexistingPro.recordtype.name != 'Package',true,false)}"/>
+                                <apex:outputText value="{!objpro.objexistingPro.Location_Code__c}" />
+                            </td>
+                            <td>
+                                <apex:outputText value="{!objpro.objexistingPro.Type__c}" />
+                            </td>
+                            <td>
+                                <apex:outputText value="{!objpro.objexistingPro.Unit_Model__c}" />
+                            </td>
+                            <td>
+                                 <apex:outputtext value="{!objpro.objexistingPro.Location__r.Building__c}"/>
+                            </td>
+                            <td>
+                                <apex:outputText value="{!objpro.objexistingPro.Sales_Rooms__c}" />
+                            </td>
+                            <td>
+                                <apex:outputText value="{0, number, ###,###,###,##0.00}">  
+                                      <apex:param value="{!objpro.objexistingPro.Total_Area__c}"/>  
+                                 </apex:outputText> 
+                            </td>
+                             <td>
+                                <apex:outputText value="{0, number, ###,###,###,##0.00}">  
+                                      <apex:param value="{!objpro.objexistingPro.Saleable_Leasable_Area__c}"/>  
+                                 </apex:outputText> 
+                            </td>
+                            <td>
+                                <div style="text-align:right;">
+                                     <apex:outputText value="{0, number, ###,###,###,##0.00}">  
+                                          <apex:param value="{!objpro.objexistingPro.Selling_Price__c}"/>  
+                                     </apex:outputText>  
+                                </div>
+                            </td>
+                            <td>
+                                <div style="text-align:center;">
+                                    <apex:commandLink onclick="deleteRow('{!objpro.OpporPropID}','{!objpro.indexval}');return false;">
+                                       <apex:image value="{!URLFOR ($Resource.EmaarCSS, 'images/Remove.png')}" style="width:15px; height:15px"/> 
+                                    </apex:commandLink>
+                                </div>
+                            </td>
+                        </tr>
+                    </apex:repeat> 
+                   </tbody>
+                </table>
+    </apex:pageBlock>
+    <apex:pageBlock id="thepbresults" title="Search Results"   >
+        <apex:pageBlockButtons >
+            <apex:commandButton styleclass="myClass" value="Add Selected Properties" action="{!AddSelectedProperties}" status="pleasewait" rerender="thepbresults,pgmsg,outpnl,existingResults" onComplete="dataMessage();return false;"/>
+           <apex:commandButton value="Done" styleclass="myClass" action="/{!strOpporId}"/>
+        </apex:pageBlockButtons>
+        <div style="width: 100%;">
+            <table cellpadding="3" id="resultstbl" class="tablesorter" style="width:100%;">
+                   <thead>
+                        <tr>
+                            <th width="5%">Select</th>
+                            <th width="15%">Property Name</th>
+                            <th width="8%">Unit Type</th>
+                            <th width="8%">Unit Model</th>
+                            <th width="10%">Building</th>
+                            <th width="8%">Bedrooms</th>
+                            <th width="10%">Total Area</th>
+                            <th width="10%">Saleable Area</th>
+                            <th width="10%">Selling Price</th>
+                            <th width="15%">Status</th>
+                            <th width="5%">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody  id="resultsbodyID"> 
+                    <apex:repeat var="objpro" value="{!lstPropertyWrap}">
+                        <tr>
+                             <td>
+                                <div style="text-align:center;">
+                                <apex:inputCheckbox value="{!objpro.blnChecked}" />
+                                </div>
+                            </td>
+                            <td>
+                                    <apex:image value="{!$Resource.Unit_Icon}" style="height:15px;width:20px;" rendered="{!if(objpro.objPro.recordtype.name == 'Package',true,false)}"/>
+                                    <apex:image value="{!$Resource.Package_Icon}" style="height:15px;width:15px;" rendered="{!if(objpro.objPro.recordtype.name!=null && objpro.objPro.recordtype.name != 'Package',true,false)}"/>
+                                    <apex:outputText value="{!objpro.objPro.Location_Code__c}" />
+                            </td>
+                            <td>
+                                 <apex:outputtext value="{!objpro.objPro.Type__c}"/>
+                            </td>
+                            <td>
+                                <apex:outputText value="{!objpro.objPro.Unit_Model__c}" /> 
+                            </td>
+                            <td>
+                                <apex:outputText value="{!objpro.objPro.Location__r.Building__c}" />
+                            </td>
+                            <td>
+                                <apex:outputText value="{!objpro.objPro.Sales_Rooms__c}" /> 
+                            </td>
+                            <td>
+                                <apex:outputText value="{0, number, ###,###,###,##0.00}">  
+                                           <apex:param value="{!objpro.objPro.Total_Area__c}"/>  
+                                   </apex:outputText>
+                            </td>
+                             <td>
+                                   <apex:outputText value="{0, number, ###,###,###,##0.00}">  
+                                           <apex:param value="{!objpro.objPro.Saleable_Leasable_Area__c}"/>  
+                                   </apex:outputText>
+                            </td>
+                             <td>
+                                 <div style="text-align:right;">
+                                  <apex:outputText value="{0, number, ###,###,###,##0.00}">  
+                                          <apex:param value="{!objpro.objPro.Selling_Price__c}"/>  
+                                     </apex:outputText>  
+                                  </div>
+                            </td>
+                            <td>
+                                <div style="text-align:center;">
+                                 <apex:outputfield value="{!objpro.objPro.Status_Indicator__c}"/>
+                                </div>
+                            </td>
+                            <td>
+                                <div style="text-align:center;">
+                                    <apex:image value="{!$Resource.ViewIcon}"  onclick="navigatetoRec('{!objpro.objPro.id}');return false;" style="width:60px;height20px;"/>
+                                </div>
+                            </td>
+                        </tr>
+                    </apex:repeat> 
+                   </tbody> 
+                </table>
+                </div>
+                 <div id="pagerdiv" align="right" style="position:static !important ;" >  
+                  <form> 
+                      <table style="width:100%"> 
+                          <tr>
+                            <td style="width:50%;align:left;">Showing Rows <select class="pagesize js_bottom_pagesize" id="PageSizeid">
+                                  <option   selected="selected" value="20">20</option>
+                                  <option value="50">50</option>
+                                  <option value="100">100</option>      
+                                  <option   value="150">150</option>    
+                              </select></td>
+                              <td ><div id="js_bottom_lable" class="js_bottom_lable"></div></td>
+                              <td style="width:2%"><div class="first js_bottom_first"></div></td>
+                              <td style="width:2%"><div   class="prev js_bottom_prev"></div></td>
+                              <td style="width:5%"><input id="bottom_PagecountId" type="text" class="pagedisplay js_bottom_pagger" disabled="disabled"/></td>
+                              <td style="width:2%"><div class="next js_bottom_next" ></div></td>
+                              <td style="width:2%"><div class="last js_bottom_last" ></div></td>
+                             
+                              </tr>
+                          </table> 
+                  </form> 
+          </div>
+    </apex:pageblock>
+</apex:form>
+<script>
+    window.onload = dataMessage();
+       function dataMessage(){
+           setTimeout(function() {
+               $("#resultstbl").tablesorter({
+                   widthFixed: false,
+                   widgets: [ "zebra", "resizable" ],
+                   widgetOptions: {
+                     resizable_addLastColumn : true
+                   }
+               }).tablesorterPager({
+                   container: $("#pagerdiv")
+               });
+           }, 2000);
+           $("#resultstbl").tablesorter({
+               headers: {0: {sorter: false},1: {sorter: true},2: {sorter: true},3:{sorter: true},4: {sorter: true},5:{sorter: true},6:{sorter: true},7:{sorter: true},8:{sorter: true},9:{sorter: true},10:{sorter: false}} 
+           });
+        }
+        function navigatetoRec(recId){
+            window.open('/'+recId,'_blank');
+        }
+        function validateFilters(){
+          var ProjName =   document.getElementById('thepage:thefm:thepb:selProjectId').value;
+          var UnitModel =   document.getElementById('thepage:thefm:thepb:selUnitModelId').value;
+          var UnitType =   document.getElementById('thepage:thefm:thepb:selUnitTypeId').value;
+          var bedRooms =   document.getElementById('thepage:thefm:thepb:selbedroomsId').value;
+          var buildingName =   document.getElementById('thepage:thefm:thepb:selbuildingId').value;
+          
+          if(ProjName ==''  && UnitModel =='' && buildingName =='' && UnitType == '' && bedRooms ==''){
+              alert('Please select at least one filter to search the records');
+          }else{
+              searchDatafn();
+          }
+        }
+        function clearfilervalues(){
+            document.getElementById('thepage:thefm:thepb:selProjectId').value = '';
+            document.getElementById('thepage:thefm:thepb:selUnitModelId').value ='';
+            document.getElementById('thepage:thefm:thepb:selUnitTypeId').value = '';
+            document.getElementById('thepage:thefm:thepb:selbedroomsId').value = '';
+            document.getElementById('thepage:thefm:thepb:selbuildingId').value = '';
+            searchDatafn();
+        }
+        function deleteRow(OppProId,indexval){
+           Cm_AddProperties.PackagePropetyCheck(OppProId,function(result, event){
+               if(event.status) {
+                  if(result == 'success'){
+                     document.getElementById('thepage:thefm:hdnselIndex').value = indexval;
+                     removerow();
+                  }else{
+                     var  strvales = [];
+                     strvales = result.split('$$$');
+                     var istatusMsg = 'You are trying to delete a Unit , which is added through package. Please confirm to delete '+strvales[0]+' Units which are added from the same package ';
+                     var DeleteConfirm = confirm(istatusMsg);
+                     if(DeleteConfirm){
+                       Cm_AddProperties.DeletePackageUnits(strvales[1],function(result, event){
+                          if(event.status) {
+                              if(result == 'success'){
+                                reloadAFN();
+                              }else{
+                                alert(result);
+                              }
+                          }
+                       });
+                       
+                     }
+                  }
+               }
+           });
+        }
+</script>
+</apex:page>
